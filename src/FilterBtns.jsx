@@ -10,6 +10,8 @@ function FilterBtns(props) {
             <button value="All" onClick={(event) => onFilterValueChanged(event)}>All</button>
             <button value="Active" onClick={(event) => onFilterValueChanged(event)}>Active</button>
             <button value="Completed" onClick={(event) => onFilterValueChanged(event)}>Completed</button>
+            <button value="Deleted" onClick={(event) => onFilterValueChanged(event)}>[Корзина]</button>
+
         </div>
     )
 };

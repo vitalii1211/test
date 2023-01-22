@@ -15,7 +15,6 @@ type Tasks = {
 type PropsType = {
     title: string
     tasks: Array<Tasks>
-
 };
 
 export function Todolist(props: PropsType) {
@@ -24,6 +23,7 @@ export function Todolist(props: PropsType) {
     const [filterState, setFilterState] = useState("All")
 
     function handleAddNewTaskItem() {
+        setFilterState ("All")
         const datetime = new Date()
         let newTaskItem = {
             id: taskItems.length + 1,
@@ -37,9 +37,10 @@ export function Todolist(props: PropsType) {
     }
 
     const filteredItems = taskItems.filter((el) => {
-        if (filterState === "Active") { return !el.isDone }
-        else if (filterState === "Completed") { return el.isDone }
-        else { return taskItems }
+        if (filterState === "All") { return taskItems && !el.isDeleted}
+        else if (filterState === "Active") { return !el.isDone && !el.isDeleted}
+        else if (filterState === "Completed") { return el.isDone && !el.isDeleted}
+        else if (filterState === "Deleted") { return el.isDeleted}
     })
 
 
@@ -53,7 +54,7 @@ export function Todolist(props: PropsType) {
                 <input value={newInputItem} onChange={(e) => setNewInputItem(e.target.value)} />
                 <button onClick={handleAddNewTaskItem}>+</button>
             </div>
-                {taskItems.length > 0 
+                {filteredItems.length > 0 
                 ? <TasksList filteredItems={filteredItems} taskItems={taskItems} setTaskItems={setTaskItems} />
                 : 'А тут пусто! :)'
                 }

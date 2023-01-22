@@ -1,7 +1,7 @@
 
 export const tasks1 = [
-    { id:1,title:"CSS",isDone:true,dateTime:"Sun Jan 22 2023 12:31:03 GMT+0300 (Москва, стандартное время)",isDeleted:false },
-    { id:2,title:"JS",isDone:true,dateTime:"Sun Jan 22 2023 12:31:04 GMT+0300 (Москва, стандартное время)", isDeleted:false},
+    { id:1,title:"CSS",isDone:true,dateTime:"Sun Jan 22 2023 12:31:03 GMT+0300 (Москва, стандартное время)",isDeleted:true },
+    { id:2,title:"JS",isDone:true,dateTime:"Sun Jan 22 2023 12:31:04 GMT+0300 (Москва, стандартное время)", isDeleted:false },
     { id:3,title:"React",isDone:false,dateTime:"Sun Jan 22 2023 12:31:05 GMT+0300 (Москва, стандартное время)", isDeleted:false }
 ]
 
