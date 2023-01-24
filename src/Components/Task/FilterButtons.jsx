@@ -1,8 +1,8 @@
 import React from "react";
 
-function FilterBtns(props) {
+function FilterButtons(props) {
     function onFilterValueChanged(event) {
-        props.onFilterValueClicked(event.target.value)
+        props.setFilterState(event.target.value)
     }
 
     return (
@@ -14,6 +14,6 @@ function FilterBtns(props) {
 
         </div>
     )
-};
+}
 
-export default FilterBtns;
+export default FilterButtons;

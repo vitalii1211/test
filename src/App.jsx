@@ -1,16 +1,15 @@
 import React from 'react';
 import './App.css';
-import {Todolist} from "./Todolist";
-import {tasks1, tasks2, tasks3} from "./Data"
+import AddTodoItem from "./Components/Todo/AddTodoItem";
+import TodoList from "./Components/Todo/TodoList";
 
 function App() {
     return (
-    <div className="App">
-      <Todolist title = "What to learn" tasks = {tasks1}/>
-      <Todolist title = "Movies" tasks = {tasks2}/>
-      <Todolist title = "Music" tasks = {tasks3}/>
-    </div>
-  );
+        <div>
+            <AddTodoItem/>
+            <TodoList/>
+        </div>
+    )
 }
 
 export default App;
