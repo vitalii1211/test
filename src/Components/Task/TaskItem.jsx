@@ -1,8 +1,9 @@
 import React from "react";
 import DeleteTaskItem from "./DeleteTaskItem";
+import axios from "axios";
 
 function TaskItem(props) {
-    function OnClickChecked() {
+    function OnClickChecked(id) {
         const index = props.taskList.findIndex(obj => obj.id === props.taskItem.id)
         const updatedTaskItem = [...props.taskList];
         updatedTaskItem[index] = {
@@ -14,6 +15,15 @@ function TaskItem(props) {
             isDeleted: props.taskItem.isDeleted
         };
         props.setTaskList(updatedTaskItem);
+
+        const OnUpdateTaskItem = async (id) => {
+            try {
+                await axios.put("http://localhost:8800/updateTaskItem/" + id.id, updatedTaskItem[index])
+            } catch (err) {
+                console.log(err)
+            }
+        }
+        OnUpdateTaskItem(id)
     }
 
     return (

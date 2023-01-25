@@ -25,7 +25,7 @@ function TodoList() {
                           title={todoItem.name}
                           todoItem={todoItem}
                 />)}
-            {/*сюда еще надр передать таски - выше вместо tasks={tasks1} */}
+
         </div>
     );
 }

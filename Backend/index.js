@@ -63,6 +63,30 @@ app.post ("/addTaskItem", (req, res) => {
     })
 })
 
+app.put ("/updateTaskItem/:id", (req, res) => {
+    const id = req.params.id;
+    const q = "UPDATE tasks SET isDeleted = ?, isDone = ? WHERE id = ?"
+    const values = [
+        req.body.isDeleted,
+        req.body.isDone
+    ]
+
+    db.query(q,[...values, id],(err) => {
+        if(err) return res.json(err)
+        return res.json("Данные успешно записаны!")
+    })
+})
+
+app.delete ("/updateTaskItem/:id", (req, res) => {
+    const id = req.params.id;
+    const q = "DELETE FROM tasks WHERE id = ?"
+
+    db.query(q,id,(err) => {
+        if(err) return res.json(err)
+        return res.json("Данные успешно записаны!")
+    })
+})
+
 app.delete ("/data/:id", (req, res) => {
     const categoryId = req.params.id;
     const q = "DELETE FROM categories WHERE id = ?"

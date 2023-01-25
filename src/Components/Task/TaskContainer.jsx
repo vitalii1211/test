@@ -3,6 +3,7 @@ import AddTaskItem from "./AddTaskItem";
 import FilterButtons from "./FilterButtons";
 import TaskList from "./TaskList";
 import axios from "axios";
+import File from "./File";
 
 function TaskContainer(props) {
     const [filterState, setFilterState] = useState("All")
@@ -41,6 +42,8 @@ function TaskContainer(props) {
                 setFilterState={setFilterState}
 
             />
+
+            <File />
 
         </div>
     )
