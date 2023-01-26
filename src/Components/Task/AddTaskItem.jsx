@@ -3,36 +3,35 @@ import axios from "axios";
 
 function AddTaskItem(props) {
     const [newInputItem, setNewInputItem] = useState("")
+    // передачу строки из поля ввода реализовал по-разному здесь и в AddTodoItem.
+    // здесь - передача по каждому символу, в AddTodoItem - по нажатию кнопки.
 
-    function HandleAddTaskItem() {
-        props.setFilterState("All")
+    const OnAddTaskItem = async () => {
         let newTaskItem = {
-            id: props.taskList.length + 1,
+            id: null,
             categoryID: props.todoItem.id,
             title: newInputItem,
             isDone: false,
             dateTime: "2019-03-28 10:00:00",
             isDeleted: false
         }
-        props.setTaskList([...props.taskList, newTaskItem])
-        setNewInputItem("")
-
-        const OnAddTaskItem = async () => {
-            try {
-                await axios.post("http://localhost:8800/addTaskItem", newTaskItem)
-            } catch (err) {
-                console.log(err)
-            }
+        try {
+            await axios.post("http://localhost:8800/addTaskItem", newTaskItem)
+                .then(function (response) {
+                    newTaskItem.id = response.data
+                    props.setFilterState("All")
+                    props.setTaskList([...props.taskList, newTaskItem])
+                    setNewInputItem("")
+                })
+        } catch (err) {
+            console.log(err)
         }
-        console.log()
-
-        OnAddTaskItem()
     }
 
     return (
         <div>
             <input value={newInputItem} onChange={(e) => setNewInputItem(e.target.value)}/>
-            <button onClick={HandleAddTaskItem}>+</button>
+            <button onClick={OnAddTaskItem}>+</button>
         </div>
     );
 }

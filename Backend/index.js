@@ -1,4 +1,4 @@
-import express from "express"
+import express, {response} from "express"
 import mysql from "mysql"
 import cors from "cors"
 
@@ -41,9 +41,9 @@ app.post ("/addTodoItem", (req, res) => {
     ]
     const q = "INSERT INTO categories (name) VALUES (?)"
 
-    db.query(q,[values],(err) => {
+    db.query(q,[values],(err, results) => {
         if(err) return res.json(err)
-        return res.json("Данные успешно записаны!")
+        return res.json(results.insertId)
     })
 })
 
@@ -57,9 +57,9 @@ app.post ("/addTaskItem", (req, res) => {
     ]
     const q = "INSERT INTO tasks (categoryID, title, isDone, isDeleted, dateTime) VALUES (?)"
 
-    db.query(q,[values],(err) => {
+    db.query(q,[values],(err,results) => {
         if(err) return res.json(err)
-        return res.json("Данные успешно записаны!")
+        return res.json(results.insertId)
     })
 })
 
@@ -71,11 +71,11 @@ app.put ("/updateTaskItem/:id", (req, res) => {
         req.body.isDone
     ]
 
-    db.query(q,[...values, id],(err) => {
+    db.query(q,[...values, id],(err, results) => {
         if(err) return res.json(err)
-        return res.json("Данные успешно записаны!")
+        return res.json(results.insertId)
     })
-})
+}) 
 
 app.delete ("/updateTaskItem/:id", (req, res) => {
     const id = req.params.id;
@@ -87,10 +87,19 @@ app.delete ("/updateTaskItem/:id", (req, res) => {
     })
 })
 
-app.delete ("/data/:id", (req, res) => {
+app.delete ("/deleteTodoItem/:id", (req, res) => {
     const categoryId = req.params.id;
     const q = "DELETE FROM categories WHERE id = ?"
     db.query(q,[categoryId],(err) => {
+        if(err) return res.json(err)
+        return res.json("Данные успешно удалены!")
+    })
+});
+
+app.delete ("/deleteTaskItem/:id", (req, res) => {
+    const id = req.params.id;
+    const q = "DELETE FROM tasks WHERE id = ?"
+    db.query(q,[id],(err) => {
         if(err) return res.json(err)
         return res.json("Данные успешно удалены!")
     })

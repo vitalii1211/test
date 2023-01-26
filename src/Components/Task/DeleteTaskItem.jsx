@@ -2,48 +2,42 @@ import React from "react";
 import axios from "axios";
 
 function DeleteTaskItem(props) {
-    const OnClickUpdateItem = async (id) => {
-        const index = props.taskList.findIndex((obj) => obj.id === props.taskItem.id)
-        // const deletedItem = props.taskItems.filter((_ek, i) => i !== index)
-        // старая функция, удаляет объект
-        const deletedItem = [...props.taskList];
-        deletedItem[index] = {
-            id: props.taskItem.id,
-            categoryID: props.todoItem.id,
-            title: props.taskItem.title,
-            isDone: props.taskItem.isDone,
-            dateTime: props.taskItem.dateTime,
-            isDeleted: !props.taskItem.isDeleted
-        };
-        props.setTaskList(deletedItem)
+
+    const OnClickUpdateItem = async (taskItemClicked) => {
+        // берем объект, на который кликнули, и меняем свойство isDeleted на противоположное
+        taskItemClicked.isDeleted = !props.taskItem.isDeleted
+
+        // отправляем измененный объет в базу данных
         try {
-            await axios.put("http://localhost:8800/updateTaskItem/" + id, deletedItem[index])
+            await axios.put("http://localhost:8800/updateTaskItem/" + taskItemClicked.id, taskItemClicked)
         } catch (err) {
             console.log(err)
         }
+
+        //  возвращаем массив taskList c измененным объектом taskItem в массив taskList, для фронта
+        props.setTaskList([...props.taskList])
     }
 
-    const OnClickDeleteForeverItem = async (id) => {
-
-
-        const index = props.taskList.findIndex((obj) => obj.id === props.taskItem.id)
-        const deletedItem = props.taskList.filter((_ek, i) => i !== index)
-        props.setTaskList(deletedItem)
-
+    const OnClickDeleteForeverItem = async (taskItemClicked) => {
+        // Удаляем объет из базы данных
         try {
-            await axios.delete("http://localhost:8800/updateTaskItem/" + id)
+            await axios.delete("http://localhost:8800/deleteTaskItem/" + taskItemClicked.id)
         } catch (err) {
             console.log(err)
         }
+
+        // Удаляем объет из taskList (перебираем тасклист так, чтобы в него не пропустить измененный объект)
+        const deletedItem = props.taskList.filter((i) => i.id !== taskItemClicked.id)
+        props.setTaskList(deletedItem)
     }
 
     return (
         <>
             {!props.taskItem.isDeleted
-                ? <button onClick={() => OnClickUpdateItem(props.taskItem.id)}>Удалить</button>
+                ? <button onClick={() => OnClickUpdateItem(props.taskItem)}>Удалить</button>
                 : <>
-                    <button onClick={() => OnClickUpdateItem(props.taskItem.id)}>Восстановить</button>
-                    <button onClick={() => OnClickDeleteForeverItem(props.taskItem.id)}>Удалить навсегда</button>
+                    <button onClick={() => OnClickUpdateItem(props.taskItem)}>Восстановить</button>
+                    <button onClick={() => OnClickDeleteForeverItem(props.taskItem)}>Удалить навсегда</button>
                 </>
             }
         </>

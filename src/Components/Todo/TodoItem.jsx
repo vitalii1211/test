@@ -8,7 +8,10 @@ export function TodoItem(props) {
             <h3>
                 {props.title}
                 <DeleteTodoItem
-                    todoItem={props.todoItem}/>
+                    todoItem={props.todoItem}
+                    todoList={props.todoList}
+                    setTodoList={props.setTodoList}
+                />
             </h3>
             <TaskContainer
                 todoItem={props.todoItem}/>
