@@ -34,7 +34,7 @@ function DeleteTaskItem(props) {
     return (
         <>
             {!props.taskItem.isDeleted
-                ? <button onClick={() => OnClickUpdateItem(props.taskItem)}>Удалить</button>
+                ? <button onClick={() => OnClickUpdateItem(props.taskItem)}>X</button>
                 : <>
                     <button onClick={() => OnClickUpdateItem(props.taskItem)}>Восстановить</button>
                     <button onClick={() => OnClickDeleteForeverItem(props.taskItem)}>Удалить навсегда</button>

@@ -75,7 +75,35 @@ app.put ("/updateTaskItem/:id", (req, res) => {
         if(err) return res.json(err)
         return res.json(results.insertId)
     })
-}) 
+})
+
+app.put ("/editTodoItem/:id", (req, res) => {
+    const id = req.params.id;
+    const q = "UPDATE categories SET name = ? WHERE id = ?"
+    const values = [
+        req.body.name
+    ]
+
+    db.query(q,[...values, id],(err) => {
+        if(err) return res.json(err)
+        return res.json("Данные успешно записаны!")
+
+    })
+})
+
+app.put ("/editTaskItem/:id", (req, res) => {
+    const id = req.params.id;
+    const q = "UPDATE tasks SET title = ? WHERE id = ?"
+    const values = [
+        req.body.title
+    ]
+
+    db.query(q,[...values, id],(err) => {
+        if(err) return res.json(err)
+        return res.json("Данные успешно записаны!")
+
+    })
+})
 
 app.delete ("/updateTaskItem/:id", (req, res) => {
     const id = req.params.id;

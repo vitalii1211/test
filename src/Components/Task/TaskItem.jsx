@@ -1,6 +1,7 @@
-import React from "react";
+import React, {useState} from "react";
 import DeleteTaskItem from "./DeleteTaskItem";
 import axios from "axios";
+import Item from "./Item";
 
 function TaskItem(props) {
     function OnClickChecked(id) {
@@ -26,29 +27,56 @@ function TaskItem(props) {
         OnUpdateTaskItem(id)
     }
 
+    const [editState, setEditState] = useState(false)
+    const [inputValue, setInputValue] = useState(props.taskItem.title)
+
+    const OnClickChangeEditState = () => {
+        setEditState(editState => !editState)
+    }
+
+    const OnClickCancelEdit = () => {
+        setEditState(editState => !editState)
+        setInputValue(props.taskItem.title)
+    }
+
+    const OnClickSaveUpdatedTitle = async (taskItemClicked) => {
+        taskItemClicked.title = inputValue
+        try {
+            await axios.put("http://localhost:8800/editTaskItem/" + taskItemClicked.id, taskItemClicked)
+        } catch (err) {
+            console.log(err)
+        }
+        props.setTaskList([...props.taskList])
+        setEditState(editState => !editState)
+    }
+
     return (
         <div>
+            {!editState
+                ?
+                <>
+                    <Item
+                        OnClickChecked={OnClickChecked}
+                        taskItem={props.taskItem}
+                    />
+                    <button onClick={OnClickChangeEditState}>/</button>
+                    <DeleteTaskItem
+                        taskItem={props.taskItem}
+                        taskList={props.taskList}
+                        setTaskList={props.setTaskList}
+                        todoItem={props.todoItem}
 
-            {props.taskItem.isDeleted
-                ? <input type="checkbox"
-                         disabled="true"
-                         checked={props.taskItem.isDone}
-                         onChange={(event) => OnClickChecked(event, props.taskItem)}
-                />
-                : <input type="checkbox"
-                         checked={props.taskItem.isDone}
-                         onChange={() => OnClickChecked(props.taskItem)}
-                />
+                    />
+                </>
+                :
+                <>
+                    <input type="text" value={inputValue} onChange={(e) => setInputValue(e.target.value)}/>
+                    <button onClick={() => OnClickSaveUpdatedTitle(props.taskItem)}>+</button>
+                    <button onClick={OnClickCancelEdit}>-</button>
+                </>
             }
-            {props.taskItem.title}
 
-            <DeleteTaskItem
-                taskItem={props.taskItem}
-                taskList={props.taskList}
-                setTaskList={props.setTaskList}
-                todoItem={props.todoItem}
 
-            />
         </div>
     )
 }
