@@ -31,11 +31,11 @@ function TaskItem(props) {
     const [inputValue, setInputValue] = useState(props.taskItem.title)
 
     const OnClickChangeEditState = () => {
-        setEditState(editState => !editState)
+        setEditState(!editState)
     }
 
     const OnClickCancelEdit = () => {
-        setEditState(editState => !editState)
+        setEditState(!editState)
         setInputValue(props.taskItem.title)
     }
 
@@ -47,33 +47,36 @@ function TaskItem(props) {
             console.log(err)
         }
         props.setTaskList([...props.taskList])
-        setEditState(editState => !editState)
+        setEditState(!editState)
     }
+    console.log(props.editMode)
 
     return (
         <div>
-            {!editState
-                ?
-                <>
-                    <Item
-                        OnClickChecked={OnClickChecked}
-                        taskItem={props.taskItem}
-                    />
-                    <button onClick={OnClickChangeEditState}>/</button>
-                    <DeleteTaskItem
-                        taskItem={props.taskItem}
-                        taskList={props.taskList}
-                        setTaskList={props.setTaskList}
-                        todoItem={props.todoItem}
+            <Item
+                OnClickChecked={OnClickChecked}
+                taskItem={props.taskItem}
+            />
 
-                    />
-                </>
-                :
-                <>
-                    <input type="text" value={inputValue} onChange={(e) => setInputValue(e.target.value)}/>
-                    <button onClick={() => OnClickSaveUpdatedTitle(props.taskItem)}>+</button>
-                    <button onClick={OnClickCancelEdit}>-</button>
-                </>
+            {props.editMode &&
+                (!editState
+                        ?
+                        <>
+                            <button onClick={OnClickChangeEditState}>/</button>
+                            <DeleteTaskItem
+                                taskItem={props.taskItem}
+                                taskList={props.taskList}
+                                setTaskList={props.setTaskList}
+                                todoItem={props.todoItem}
+                            />
+                        </>
+                        :
+                        <>
+                            <input type="text" value={inputValue} onChange={(e) => setInputValue(e.target.value)}/>
+                            <button onClick={() => OnClickSaveUpdatedTitle(props.taskItem)}>+</button>
+                            <button onClick={OnClickCancelEdit}>-</button>
+                        </>
+                )
             }
 
 

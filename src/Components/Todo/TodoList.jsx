@@ -12,6 +12,7 @@ function TodoList(props) {
                           todoItem={todoItem}
                           todoList={props.todoList}
                           setTodoList={props.setTodoList}
+                          editMode={props.editMode}
 
                 />)}
 

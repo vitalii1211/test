@@ -21,12 +21,13 @@ function TaskList(props) {
             {filteredItems
                 .sort((a, b) => (b.id) - new Date(a.id))
                 .filter(el => el.categoryID === props.todoItem.id)
-                .map((taskItem) => <TaskItem
+                .map((taskItem, i) => <TaskItem
                     key={taskItem.id}
                     taskItem={taskItem}
                     taskList={props.taskList}
                     setTaskList={props.setTaskList}
                     todoItem={props.todoItem}
+                    editMode={props.editMode}
                 />)
             }
         </div>

@@ -8,11 +8,11 @@ export function TodoItem(props) {
     const [inputValue, setInputValue] = useState(props.todoItem.name)
 
     const OnClickChangeEditState = () => {
-        setEditState(editState => !editState)
+        setEditState(!editState)
     }
 
     const OnClickCancelEdit = () => {
-        setEditState(editState => !editState)
+        setEditState(!editState)
         setInputValue(props.todoItem.name)
     }
 
@@ -24,15 +24,16 @@ export function TodoItem(props) {
             console.log(err)
         }
         props.setTodoList([...props.todoList])
-        setEditState(editState => !editState)
+        setEditState(!editState)
     }
 
     return (
-        <div>
-            <h3>
-                {!editState
+        <div><h3>
+            {props.title}
+            {props.editMode &&
+                (!editState
                     ? <>
-                        <p onDoubleClick={OnClickChangeEditState}>{props.title}</p>
+
                         <button onClick={OnClickChangeEditState}>/</button>
                         <DeleteTodoItem
                             todoItem={props.todoItem}
@@ -44,11 +45,14 @@ export function TodoItem(props) {
                         <input type="text" value={inputValue} onChange={(e) => setInputValue(e.target.value)}/>
                         <button onClick={() => OnClickSaveUpdatedTitle(props.todoItem)}>+</button>
                         <button onClick={OnClickCancelEdit}>-</button>
-                    </>
-                }
-            </h3>
+                    </>)
+            }
+        </h3>
             <TaskContainer
-                todoItem={props.todoItem}/>
+                todoItem={props.todoItem}
+                editMode={props.editMode}
+
+            />
         </div>
     )
 }

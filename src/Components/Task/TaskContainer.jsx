@@ -35,6 +35,8 @@ function TaskContainer(props) {
                 setTaskList={setTaskList}
                 filterState={filterState}
                 todoItem={props.todoItem}
+                editMode={props.editMode}
+
             />
 
             <FilterButtons
