@@ -1,7 +1,6 @@
 import React, {useState} from "react";
 import DeleteTaskItem from "./DeleteTaskItem";
 import axios from "axios";
-import Item from "./Item";
 
 function TaskItem(props) {
     function OnClickChecked(id) {
@@ -31,7 +30,8 @@ function TaskItem(props) {
     const [inputValue, setInputValue] = useState(props.taskItem.title)
 
     const OnClickChangeEditState = () => {
-        setEditState(!editState)
+        if (props.editMode)
+            setEditState(!editState)
     }
 
     const OnClickCancelEdit = () => {
@@ -49,37 +49,56 @@ function TaskItem(props) {
         props.setTaskList([...props.taskList])
         setEditState(!editState)
     }
-    console.log(props.editMode)
 
     return (
         <div>
-            <Item
-                OnClickChecked={OnClickChecked}
-                taskItem={props.taskItem}
-            />
-
-            {props.editMode &&
-                (!editState
-                        ?
-                        <>
-                            <button onClick={OnClickChangeEditState}>/</button>
-                            <DeleteTaskItem
+            <table>
+                <tr>
+                    <td>
+                        <input type="checkbox"
+                               disabled={props.taskItem.isDeleted && true}
+                               onChange={() => OnClickChecked(props.taskItem)}
+                               checked={props.taskItem.isDone}
+                        />
+                    </td>
+                    <td onDoubleClick={OnClickChangeEditState}>
+                        {!editState
+                            ? props.taskItem.title
+                            : <input type="text"
+                                     autoFocus={true}
+                                     value={inputValue}
+                                     onChange={(e) => setInputValue(e.target.value)}
+                                     onBlur={() => OnClickSaveUpdatedTitle(props.taskItem)}
+                                     onKeyDown={(e) => {
+                                         if (e.keyCode === 13) {
+                                             OnClickSaveUpdatedTitle(props.taskItem);
+                                         } else if (e.keyCode === 27) {
+                                             OnClickCancelEdit()
+                                         }
+                                     }}
+                            />
+                        }
+                    </td>
+                    <td>
+                        <DeleteTaskItem
                                 taskItem={props.taskItem}
                                 taskList={props.taskList}
                                 setTaskList={props.setTaskList}
                                 todoItem={props.todoItem}
+                                editState={editState}
+                                editMode={props.editMode}
                             />
-                        </>
-                        :
-                        <>
-                            <input type="text" value={inputValue} onChange={(e) => setInputValue(e.target.value)}/>
-                            <button onClick={() => OnClickSaveUpdatedTitle(props.taskItem)}>+</button>
-                            <button onClick={OnClickCancelEdit}>-</button>
-                        </>
-                )
-            }
 
 
+                        {/*:*/}
+                        {/*<>*/}
+                        {/*    />*/}
+                        {/*    <button onClick={() => OnClickSaveUpdatedTitle(props.taskItem)}>+</button>*/}
+                        {/*    <button onClick={OnClickCancelEdit}>-</button>*/}
+                        {/*</>*/}
+                    </td>
+                </tr>
+            </table>
         </div>
     )
 }

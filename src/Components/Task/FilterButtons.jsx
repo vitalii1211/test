@@ -10,10 +10,10 @@ function FilterButtons(props) {
 
     return (
         <div>
-            <button value="All" onClick={(event) => onFilterValueChanged(event)}>All</button>
-            <button value="Active" onClick={(event) => onFilterValueChanged(event)}>Active</button>
-            <button value="Completed" onClick={(event) => onFilterValueChanged(event)}>Completed</button>
-            <button value="Deleted" onClick={(event) => onFilterValueChangedDeleted(event)}>[Корзина]</button>
+            <button className="button-filter" value="All" onClick={(event) => onFilterValueChanged(event)}>All</button>
+            <button className="button-filter" value="Active" onClick={(event) => onFilterValueChanged(event)}>Active</button>
+            <button className="button-filter" value="Completed" onClick={(event) => onFilterValueChanged(event)}>Completed</button>
+            <button className="button-filter" value="Deleted" onClick={(event) => onFilterValueChangedDeleted(event)}>[Корзина]</button>
 
         </div>
     )

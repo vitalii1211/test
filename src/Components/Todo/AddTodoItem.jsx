@@ -25,11 +25,11 @@ function AddTodoItem(props) {
     }
 
     return (
-        <div className="App">
+        <>
             Добавить новый список:
             <input type="text" placeholder="Наименование" onChange={(e) => OnChange(e)} name="name"/>
             <button onClick={(e) => OnAddTodoItem(e)}>Добавить</button>
-        </div>);
+        </>);
 }
 
 export default AddTodoItem;

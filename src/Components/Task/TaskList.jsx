@@ -3,7 +3,6 @@ import TaskItem from "./TaskItem";
 
 function TaskList(props) {
 
-
     const filteredItems = props.taskList.filter((el) => {
         if (props.filterState === "All") {
             return props.taskList && !el.isDeleted

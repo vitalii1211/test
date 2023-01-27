@@ -8,7 +8,8 @@ export function TodoItem(props) {
     const [inputValue, setInputValue] = useState(props.todoItem.name)
 
     const OnClickChangeEditState = () => {
-        setEditState(!editState)
+        if (props.editMode)
+            setEditState(!editState)
     }
 
     const OnClickCancelEdit = () => {
@@ -17,6 +18,7 @@ export function TodoItem(props) {
     }
 
     const OnClickSaveUpdatedTitle = async (taskItemClicked) => {
+
         taskItemClicked.name = inputValue
         try {
             await axios.put("http://localhost:8800/editTodoItem/" + taskItemClicked.id, taskItemClicked)
@@ -27,27 +29,43 @@ export function TodoItem(props) {
         setEditState(!editState)
     }
 
-    return (
-        <div><h3>
-            {props.title}
-            {props.editMode &&
-                (!editState
-                    ? <>
 
-                        <button onClick={OnClickChangeEditState}>/</button>
-                        <DeleteTodoItem
-                            todoItem={props.todoItem}
-                            todoList={props.todoList}
-                            setTodoList={props.setTodoList}
+    return (
+        <div>
+            <h3
+                onDoubleClick={OnClickChangeEditState}
+                onBlur={() => OnClickSaveUpdatedTitle(props.todoItem)}
+            >
+                {!editState
+                    ?
+                    <>
+                        {props.title}
+                        {props.editMode &&
+                            <>
+                                <DeleteTodoItem
+                                    todoItem={props.todoItem}
+                                    todoList={props.todoList}
+                                    setTodoList={props.setTodoList}
+                                />
+                            </>}
+                    </>
+                    :
+                    <>
+                        <input type="text"
+                               autoFocus={true}
+                               value={inputValue}
+                               onChange={(e) => setInputValue(e.target.value)}
+                               onKeyDown={(e) => {
+                                   if (e.keyCode === 13) {
+                                       OnClickSaveUpdatedTitle(props.todoItem);
+                                   } else if (e.keyCode === 27) {
+                                       OnClickCancelEdit()
+                                   }
+                               }}
                         />
                     </>
-                    : <>
-                        <input type="text" value={inputValue} onChange={(e) => setInputValue(e.target.value)}/>
-                        <button onClick={() => OnClickSaveUpdatedTitle(props.todoItem)}>+</button>
-                        <button onClick={OnClickCancelEdit}>-</button>
-                    </>)
-            }
-        </h3>
+                }
+            </h3>
             <TaskContainer
                 todoItem={props.todoItem}
                 editMode={props.editMode}

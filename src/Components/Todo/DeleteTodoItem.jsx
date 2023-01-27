@@ -1,7 +1,5 @@
 import React from 'react';
 import axios from "axios";
-import todoList from "./TodoList";
-import taskList from "../Task/TaskList";
 
 function DeleteTodoItem(props) {
     const OnDeleteTodoItem = async (todoItemClicked) => {

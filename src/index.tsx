@@ -4,8 +4,8 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {BrowserRouter, Routes, Route} from "react-router-dom";
-import AddTodoItem from "./Components/Todo/AddTodoItem";
-import Update from "./Update";
+import Login from "./Components/Auth/Login";
+import Register from "./Components/Auth/Register";
 
 
 const root = ReactDOM.createRoot(
@@ -16,8 +16,8 @@ root.render(
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<App/>}/>
-                <Route path="/add" element={<AddTodoItem/>}/>
-                <Route path="/update" element={<Update/>}/>
+                <Route path="/login" element={<Login/>}/>
+                <Route path="/register" element={<Register/>}/>
             </Routes>
         </BrowserRouter>
     </React.StrictMode>

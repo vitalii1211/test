@@ -2,25 +2,12 @@ import React, {useState} from 'react';
 import './App.css';
 import TodoContainer from "./Components/Todo/TodoContainer";
 import Test from "./Test";
+import Register from "./Components/Auth/Register";
 
 function App() {
-    const [editMode, setEditMode] = useState(false)
-    function SwitchEditMode() {
-        setEditMode(!editMode)
-    }
-
     return (
         <div>
-            <button onClick={SwitchEditMode}>
-                {editMode ?
-                    "Режим редактирования"
-                    : "Режим чтения"
-                }
-            </button>
-            <TodoContainer
-                editMode={editMode}
-                setEditMode={setEditMode}
-            />
+            <TodoContainer/>
         </div>
     )
 }

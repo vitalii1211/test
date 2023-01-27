@@ -1,11 +1,40 @@
 .App {
     margin: 30px;
     display: flex;
-  }
-  
-  .App > div {
+}
+
+.App > div {
     margin-right: 50px;
-  }
+}
 
 .Header {
-    margin-top: 30px;}
+    margin-top: 30px;
+}
+
+.button-filter {
+}
+
+.button-filter:hover {
+    background-color: orange;
+}
+
+.button-filter:focus {
+    background-color: red;
+}
+
+a {
+    color: orange;
+}
+
+a.button {
+    color: green;
+    text-decoration: none;
+}
+
+a:visited {
+    color: purple;
+}
+
+a:active {
+    color: blue;
+}

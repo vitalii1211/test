@@ -34,10 +34,10 @@ function DeleteTaskItem(props) {
     return (
         <>
             {!props.taskItem.isDeleted
-                ? <button onClick={() => OnClickUpdateItem(props.taskItem)}>X</button>
+                ? !props.editState && <button onClick={() => OnClickUpdateItem(props.taskItem)}>X</button>
                 : <>
-                    <button onClick={() => OnClickUpdateItem(props.taskItem)}>Восстановить</button>
-                    <button onClick={() => OnClickDeleteForeverItem(props.taskItem)}>Удалить навсегда</button>
+                    <button onClick={() => OnClickUpdateItem(props.taskItem)}>---</button>
+                    <button onClick={() => OnClickDeleteForeverItem(props.taskItem)}>XXX</button>
                 </>
             }
         </>

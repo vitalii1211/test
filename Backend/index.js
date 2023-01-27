@@ -1,7 +1,8 @@
-import express, {response} from "express"
+import express from "express"
 import mysql from "mysql"
 import cors from "cors"
 
+// const cookieParser = require('cookie-parser')
 const app = express()
 
 const db = mysql.createConnection({

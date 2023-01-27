@@ -6,6 +6,7 @@ import axios from "axios";
 
 function TodoContainer(props) {
     const [todoList, setTodoList] = useState([])
+    const [editMode, setEditMode] = useState(false)
 
     useEffect(() => {
         const fetchTodoData = async () => {
@@ -19,23 +20,31 @@ function TodoContainer(props) {
         fetchTodoData()
     }, [])
 
+    function SwitchEditMode() {
+        setEditMode(!editMode)
+    }
+
     return (
         <div>
-            {props.editMode &&
-            <AddTodoItem
-                todoList={todoList}
-                setTodoList={setTodoList}
-                editMode={props.editMode}
-                setEditMode={props.setEditMode}
-                SwitchEditMode={props.SwitchEditMode}
-            />
+            <button onClick={SwitchEditMode}>
+                {editMode ?
+                    "Чтение"
+                    : "Управление"
+                }
+            </button>
+
+            {editMode &&
+                <AddTodoItem
+                    todoList={todoList}
+                    setTodoList={setTodoList}
+                    editMode={editMode}
+                />
             }
+
             <TodoList
                 todoList={todoList}
                 setTodoList={setTodoList}
-                editMode={props.editMode}
-                setEditMode={props.setEditMode}
-                SwitchEditMode={props.SwitchEditMode}
+                editMode={editMode}
 
             />
         </div>
