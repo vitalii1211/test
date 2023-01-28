@@ -3,12 +3,15 @@ import DeleteTaskItem from "./DeleteTaskItem";
 import axios from "axios";
 
 function TaskItem(props) {
+    const [editState, setEditState] = useState(false)
+    const [inputValue, setInputValue] = useState(props.taskItem.title)
+
     function OnClickChecked(id) {
         const index = props.taskList.findIndex(obj => obj.id === props.taskItem.id)
         const updatedTaskItem = [...props.taskList];
         updatedTaskItem[index] = {
             id: props.taskItem.id,
-            categoryID: props.todoItem.id,
+            todo_id: props.todoItem.id,
             title: props.taskItem.title,
             isDone: !props.taskItem.isDone,
             dateTime: props.taskItem.dateTime,
@@ -26,12 +29,11 @@ function TaskItem(props) {
         OnUpdateTaskItem(id)
     }
 
-    const [editState, setEditState] = useState(false)
-    const [inputValue, setInputValue] = useState(props.taskItem.title)
+
 
     const OnClickChangeEditState = () => {
         if (props.editMode)
-            setEditState(!editState)
+            setEditState(true)
     }
 
     const OnClickCancelEdit = () => {
@@ -53,9 +55,11 @@ function TaskItem(props) {
     return (
         <div>
             <table>
+                <tbody>
                 <tr>
                     <td>
                         <input type="checkbox"
+                               width="fullWidth"
                                disabled={props.taskItem.isDeleted && true}
                                onChange={() => OnClickChecked(props.taskItem)}
                                checked={props.taskItem.isDone}
@@ -88,16 +92,9 @@ function TaskItem(props) {
                                 editState={editState}
                                 editMode={props.editMode}
                             />
-
-
-                        {/*:*/}
-                        {/*<>*/}
-                        {/*    />*/}
-                        {/*    <button onClick={() => OnClickSaveUpdatedTitle(props.taskItem)}>+</button>*/}
-                        {/*    <button onClick={OnClickCancelEdit}>-</button>*/}
-                        {/*</>*/}
                     </td>
                 </tr>
+                </tbody>
             </table>
         </div>
     )

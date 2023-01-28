@@ -41,6 +41,7 @@ function TaskContainer(props) {
 
             <FilterButtons
                 taskList={taskList}
+                filterState={filterState}
                 setFilterState={setFilterState}
 
             />

@@ -31,10 +31,11 @@ function DeleteTaskItem(props) {
         props.setTaskList(deletedItem)
     }
 
+
     return (
         <>
             {!props.taskItem.isDeleted
-                ? !props.editState && <button onClick={() => OnClickUpdateItem(props.taskItem)}>X</button>
+                ? !props.editState && props.editMode && <button onClick={() => OnClickUpdateItem(props.taskItem)}>X</button>
                 : <>
                     <button onClick={() => OnClickUpdateItem(props.taskItem)}>---</button>
                     <button onClick={() => OnClickDeleteForeverItem(props.taskItem)}>XXX</button>

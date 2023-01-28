@@ -12,29 +12,5 @@
 }
 
 .button-filter {
-}
-
-.button-filter:hover {
-    background-color: orange;
-}
-
-.button-filter:focus {
-    background-color: red;
-}
-
-a {
-    color: orange;
-}
-
-a.button {
-    color: green;
-    text-decoration: none;
-}
-
-a:visited {
-    color: purple;
-}
-
-a:active {
-    color: blue;
+    background-color: chartreuse;
 }

@@ -14,12 +14,14 @@ function TaskList(props) {
             return el.isDeleted
         }
     })
+    debugger
 
     return (
         <div>
             {filteredItems
                 .sort((a, b) => (b.id) - new Date(a.id))
-                .filter(el => el.categoryID === props.todoItem.id)
+                .filter(el => el.todo_id === props.todoItem.id)
+
                 .map((taskItem, i) => <TaskItem
                     key={taskItem.id}
                     taskItem={taskItem}

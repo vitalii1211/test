@@ -2,6 +2,7 @@ import React, {useState} from "react";
 import DeleteTodoItem from "./DeleteTodoItem";
 import TaskContainer from "../Task/TaskContainer";
 import axios from "axios";
+import {Card, CardContent, Paper} from "@mui/material";
 
 export function TodoItem(props) {
     const [editState, setEditState] = useState(false)
@@ -31,7 +32,8 @@ export function TodoItem(props) {
 
 
     return (
-        <div>
+        <Paper elevation={10}>
+            <CardContent>
             <h3
                 onDoubleClick={OnClickChangeEditState}
                 onBlur={() => OnClickSaveUpdatedTitle(props.todoItem)}
@@ -71,6 +73,7 @@ export function TodoItem(props) {
                 editMode={props.editMode}
 
             />
-        </div>
+                </CardContent>
+        </Paper>
     )
 }
