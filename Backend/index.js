@@ -2,11 +2,14 @@ import express from "express"
 import mysql from "mysql"
 import cors from "cors"
 import bcrypt from 'bcrypt'
+import cookieParser from 'cookie-parser'
 
 // const cookieParser = require('cookie-parser')
 const app = express()
-// const bcrypt = require('bcrypt')
 const saltRounds = 10
+
+app.use(express.json())
+app.use(cors())
 
 const db = mysql.createConnection({
     host: "localhost",
@@ -15,25 +18,12 @@ const db = mysql.createConnection({
     database: "new_schema"
 })
 
-app.use(express.json())
-app.use(cors())
-
 app.post("/register", (req, res) => {
-    // const values = [
-    //     req.body.id,
-    //     req.body.userFirstName,
-    //     req.body.userLastName,
-    //     req.body.userEmail,
-    //     req.body.userPassword
-    // ]
-
-
     const id = req.body.id
     const userFirstName = req.body.userFirstName
     const userLastName = req.body.userLastName
     const userEmail = req.body.userEmail
     const userPassword = req.body.userPassword
-
     bcrypt.hash(userPassword, saltRounds, (err, hash) => {
         if (err) {
             console.log(err)
@@ -50,15 +40,15 @@ app.post("/login", (req, res) => {
     const password = req.body.userPassword
 
     const q = "SELECT * FROM users WHERE email = ?"
-
     db.query(q, email, (err, result) => {
         if (err) {
-            res.send({err: err})
+            // res.send({err: err})
+            console.log(err)
         } else {
             if (result.length > 0) {
                 bcrypt.compare(password, result[0].password, (err, response) => {
                     if (response) {
-                        response.send(result)
+                        res.send(result)
                     } else {
                         res.send({message: "Неверный е-мейл или пароль"})
                     }
@@ -70,28 +60,9 @@ app.post("/login", (req, res) => {
     })
 })
 
-
-app.post("/addTaskItem", (req, res) => {
-    const values = [
-        req.body.todo_id,
-        req.body.title,
-        req.body.isDone,
-        req.body.isDeleted,
-        req.body.dateTime
-    ]
-    const q = "INSERT INTO task_list (todo_id, title, isDone, isDeleted, dateTime) VALUES (?)"
-
-    db.query(q, [values], (err, results) => {
-        if (err) return res.json(err)
-        return res.json(results.insertId)
-    })
-})
-
-
 app.get("/", (req, res) => {
     res.json("Hello!")
 })
-
 
 app.get("/todoData", (req, res) => {
     const q = "SELECT * FROM todo_list;"
@@ -121,21 +92,21 @@ app.post("/addTodoItem", (req, res) => {
     })
 })
 
-// app.post ("/addTaskItem", (req, res) => {
-//     const values = [
-//         req.body.todo_id,
-//         req.body.title,
-//         req.body.isDone,
-//         req.body.isDeleted,
-//         req.body.dateTime
-//     ]
-//     const q = "INSERT INTO task_list (todo_id, title, isDone, isDeleted, dateTime) VALUES (?)"
-//
-//     db.query(q,[values],(err,results) => {
-//         if(err) return res.json(err)
-//         return res.json(results.insertId)
-//     })
-// })
+app.post ("/addTaskItem", (req, res) => {
+    const values = [
+        req.body.todo_id,
+        req.body.title,
+        req.body.isDone,
+        req.body.isDeleted,
+        req.body.dateTime
+    ]
+    const q = "INSERT INTO task_list (todo_id, title, isDone, isDeleted, dateTime) VALUES (?)"
+
+    db.query(q,[values],(err,results) => {
+        if(err) return res.json(err)
+        return res.json(results.insertId)
+    })
+})
 
 app.put("/updateTaskItem/:id", (req, res) => {
     const id = req.params.id;
@@ -179,16 +150,6 @@ app.put("/editTaskItem/:id", (req, res) => {
     })
 })
 
-app.delete("/updateTaskItem/:id", (req, res) => {
-    const id = req.params.id;
-    const q = "DELETE FROM task_list WHERE id = ?"
-
-    db.query(q, id, (err) => {
-        if (err) return res.json(err)
-        return res.json("Данные успешно записаны!")
-    })
-})
-
 app.delete("/deleteTodoItem/:id", (req, res) => {
     const todo_id = req.params.id;
     const q = "DELETE FROM todo_list WHERE id = ?"
@@ -210,3 +171,15 @@ app.delete("/deleteTaskItem/:id", (req, res) => {
 app.listen(8800, () => {
     console.log('connection!')
 });
+
+
+
+// app.delete("/updateTaskItem/:id", (req, res) => {
+//     const id = req.params.id;
+//     const q = "DELETE FROM task_list WHERE id = ?"
+//
+//     db.query(q, id, (err) => {
+//         if (err) return res.json(err)
+//         return res.json("Данные успешно записаны!")
+//     })
+// })
