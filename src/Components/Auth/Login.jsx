@@ -13,8 +13,9 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import {createTheme, ThemeProvider} from '@mui/material/styles';
 import {Link as RouterLink, LinkProps as RouterLinkProps} from 'react-router-dom';
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import axios from "axios";
+import TodoContainer from "../Todo/TodoContainer";
 
 
 function Copyright(props) {
@@ -37,21 +38,19 @@ export default function Login() {
     const [userPassword, setUserPassword] = useState("")
     const [loginStatus, setLoginStatus] = useState("")
 
+    axios.defaults.withCredentials = true;
+
     const handleSubmit = async (event) => {
         event.preventDefault();
-
         const userLogin = {
             userEmail: userEmail,
             userPassword: userPassword
         }
-
-        console.log(userLogin)
-
         try {
             await axios.post('http://localhost:8800/login', userLogin)
                 .then((response) => {
                     if (response.data.message) {
-                    setLoginStatus(response.data.message)
+                        setLoginStatus(response.data.message)
                     } else {
                         setLoginStatus(response.data[0].first_name + " " + response.data[0].last_name)
                     }
@@ -61,6 +60,17 @@ export default function Login() {
             console.log(err)
         }
     };
+
+    useEffect(() => {
+        axios.get("http://localhost:8800/login")
+            .then(
+                (response) => {
+                    if (response.data.loggedIn) {
+                        setLoginStatus(response.data.user[0].first_name)
+                    }
+                }
+            )
+    }, [])
 
     return (
         <ThemeProvider theme={theme}>
@@ -78,7 +88,7 @@ export default function Login() {
                         <LockOutlinedIcon/>
                     </Avatar>
                     <Typography component="h1" variant="h5">
-                       Login
+                        Login
                     </Typography>
                     <Box component="form" onSubmit={handleSubmit} noValidate sx={{mt: 1}}>
                         {loginStatus}

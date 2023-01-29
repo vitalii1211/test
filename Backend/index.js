@@ -3,13 +3,28 @@ import mysql from "mysql"
 import cors from "cors"
 import bcrypt from 'bcrypt'
 import cookieParser from 'cookie-parser'
+import bodyParser from "body-parser";
+import session from 'express-session'
 
-// const cookieParser = require('cookie-parser')
 const app = express()
-const saltRounds = 10
 
 app.use(express.json())
-app.use(cors())
+app.use(cors ({
+    origin: ("http://localhost:3000"),
+    methods: ["GET", "POST"],
+    credentials: true
+}))
+app.use(cookieParser())
+app.use(bodyParser.urlencoded({extended: true}))
+app.use(session({
+    key: "userid",
+    secret: "subscribe",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        express: 60 * 60 * 24,
+    }
+}))
 
 const db = mysql.createConnection({
     host: "localhost",
@@ -17,6 +32,8 @@ const db = mysql.createConnection({
     password: "root",
     database: "new_schema"
 })
+const saltRounds = 10
+
 
 app.post("/register", (req, res) => {
     const id = req.body.id
@@ -38,16 +55,16 @@ app.post("/register", (req, res) => {
 app.post("/login", (req, res) => {
     const email = req.body.userEmail
     const password = req.body.userPassword
-
     const q = "SELECT * FROM users WHERE email = ?"
     db.query(q, email, (err, result) => {
         if (err) {
-            // res.send({err: err})
             console.log(err)
         } else {
             if (result.length > 0) {
                 bcrypt.compare(password, result[0].password, (err, response) => {
                     if (response) {
+                        req.session.user = result;
+                        console.log(req.session.user)
                         res.send(result)
                     } else {
                         res.send({message: "Неверный е-мейл или пароль"})
@@ -58,6 +75,14 @@ app.post("/login", (req, res) => {
             }
         }
     })
+})
+
+app.get("/login", (req, res) => {
+if (req.session.user) {
+    res.send({loggedIn: true, user: req.session.user})
+} else {
+    res.send({loggedIn: false})
+}
 })
 
 app.get("/", (req, res) => {

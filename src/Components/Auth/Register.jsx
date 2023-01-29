@@ -33,9 +33,15 @@ function Copyright(props) {
 const theme = createTheme();
 
 export default function Register () {
+    const [userFirstName, setUserFirstName] = useState("")
+    const [userLastName, setUserLastName] = useState("")
+    const [userEmail, setUserEmail] = useState("")
+    const [userPassword, setUserPassword] = useState("")
+
+    // axios.defaults.withCredentials = true;
+
     const handleSubmit = async (event) => {
         event.preventDefault();
-
         const newUser = {
             id: null,
             userFirstName: userFirstName,
@@ -43,8 +49,6 @@ export default function Register () {
             userEmail: userEmail,
             userPassword: userPassword
         }
-        console.log(newUser)
-
         try {
             await axios.post('http://localhost:8800/register', newUser)
                 .then((response) => {
@@ -53,14 +57,7 @@ export default function Register () {
         } catch (err) {
             console.log(err)
         }
-
-
     };
-
-    const [userFirstName, setUserFirstName] = useState("")
-    const [userLastName, setUserLastName] = useState("")
-    const [userEmail, setUserEmail] = useState("")
-    const [userPassword, setUserPassword] = useState("")
 
     return (
         <ThemeProvider theme={theme}>
