@@ -12,9 +12,10 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Link as RouterLink, LinkProps as RouterLinkProps } from 'react-router-dom';
+import {Link as RouterLink, LinkProps as RouterLinkProps, useNavigate} from 'react-router-dom';
 import {useState} from "react";
 import axios from "axios";
+import {Navigate} from "react-router-dom";
 
 
 function Copyright(props) {
@@ -37,10 +38,15 @@ export default function Register () {
     const [userLastName, setUserLastName] = useState("")
     const [userEmail, setUserEmail] = useState("")
     const [userPassword, setUserPassword] = useState("")
+    const [success, setSuccess] = useState(false)
 
     // axios.defaults.withCredentials = true;
+    console.log("success", success)
 
     const handleSubmit = async (event) => {
+        setSuccess(true)
+        console.log("success", success)
+
         event.preventDefault();
         const newUser = {
             id: null,
@@ -49,15 +55,22 @@ export default function Register () {
             userEmail: userEmail,
             userPassword: userPassword
         }
-        try {
+
             await axios.post('http://localhost:8800/register', newUser)
-                .then((response) => {
-                    console.log(response)
-                });
-        } catch (err) {
-            console.log(err)
-        }
+                // .then((response) => {
+                //     // console.log(response.data.result)
+                //
+
+
+
+
+
+
+
+
     };
+
+
 
     return (
         <ThemeProvider theme={theme}>
@@ -89,7 +102,7 @@ export default function Register () {
                                     label="First Name"
                                     autoFocus
                                     onChange={(e) => setUserFirstName(e.target.value)}
-                                    value={userFirstName}
+                                    // value={userFirstName}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -101,7 +114,7 @@ export default function Register () {
                                     name="lastName"
                                     autoComplete="family-name"
                                     onChange={(e) => setUserLastName(e.target.value)}
-                                    value={userLastName}
+                                    // value={userLastName}
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -113,7 +126,7 @@ export default function Register () {
                                     name="email"
                                     autoComplete="email"
                                     onChange={(e) => setUserEmail(e.target.value)}
-                                    value={userEmail}
+                                    // value={userEmail}
 
                                 />
                             </Grid>
@@ -127,7 +140,7 @@ export default function Register () {
                                     id="password"
                                     autoComplete="new-password"
                                     onChange={(e) => setUserPassword(e.target.value)}
-                                    value={userPassword}
+                                    // value={userPassword}
                                 />
                             </Grid>
                             <Grid item xs={12}>

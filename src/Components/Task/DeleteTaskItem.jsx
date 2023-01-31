@@ -1,48 +1,62 @@
 import React from "react";
-import axios from "axios";
+import axios from "axios";import ClearIcon from '@mui/icons-material/Clear';
+
+
 
 function DeleteTaskItem(props) {
 
-    const OnClickUpdateItem = async (taskItemClicked) => {
-        // берем объект, на который кликнули, и меняем свойство isDeleted на противоположное
-        taskItemClicked.isDeleted = !props.taskItem.isDeleted
-
-        // отправляем измененный объет в базу данных
+    const OnClickUpdateItem = async (id) => {
+        const updatedTaskList = props.taskList.map(taskItem => taskItem.id === id
+            ? {...taskItem, isDeleted: !taskItem.isDeleted}
+            : taskItem
+        )
+        props.setTaskList(updatedTaskList)
+        const updatedTaskItem = updatedTaskList.filter(taskItem => taskItem.id === id)
         try {
-            await axios.put("http://localhost:8800/updateTaskItem/" + taskItemClicked.id, taskItemClicked)
+            await axios.put("http://localhost:8800/updateTaskItem/" + id, updatedTaskItem[0])
         } catch (err) {
             console.log(err)
         }
-
-        //  возвращаем массив taskList c измененным объектом taskItem в массив taskList, для фронта
-        props.setTaskList([...props.taskList])
     }
 
-    const OnClickDeleteForeverItem = async (taskItemClicked) => {
-        // Удаляем объет из базы данных
+    const OnClickDeleteForeverItem = async (id) => {
+        const updatedTaskList = props.taskList.filter((i) => i.id !== id)
+        props.setTaskList(updatedTaskList)
         try {
-            await axios.delete("http://localhost:8800/deleteTaskItem/" + taskItemClicked.id)
+            await axios.delete("http://localhost:8800/deleteTaskItem/" + id)
         } catch (err) {
             console.log(err)
         }
-
-        // Удаляем объет из taskList (перебираем тасклист так, чтобы в него не пропустить измененный объект)
-        const deletedItem = props.taskList.filter((i) => i.id !== taskItemClicked.id)
-        props.setTaskList(deletedItem)
     }
 
 
     return (
         <>
             {!props.taskItem.isDeleted
-                ? !props.editState && props.editMode && <button onClick={() => OnClickUpdateItem(props.taskItem)}>X</button>
-                : <>
-                    <button onClick={() => OnClickUpdateItem(props.taskItem)}>---</button>
-                    <button onClick={() => OnClickDeleteForeverItem(props.taskItem)}>XXX</button>
+                ?
+                !props.editState && props.editMode &&
+                <button onClick={() => OnClickUpdateItem(props.taskItem.id)}>X</button>
+                :
+                <>
+                    <button onClick={() => OnClickUpdateItem(props.taskItem.id)}>---</button>
+                    <button onClick={() => OnClickDeleteForeverItem(props.taskItem.id)}>XXX</button>
                 </>
             }
-        </>
-    )
+        </>)
 }
 
-export default DeleteTaskItem;
+            export default DeleteTaskItem;
+
+
+
+            {/*<button onClick={() => OnClickUpdateItem(props.taskItem.id)}>*/}
+            {/*    {props.taskItem.isDeleted ? "---" : "X"}</button>*/}
+
+            {/*{Boolean(props.taskItem.isDeleted) &&*/}
+            {/*    <button onClick={() => OnClickDeleteForeverItem(props.taskItem.id)}>XXX</button>*/}
+            {/*}*/}
+
+
+
+
+

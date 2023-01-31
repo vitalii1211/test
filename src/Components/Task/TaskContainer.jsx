@@ -12,7 +12,7 @@ function TaskContainer(props) {
         const fetchTodoData = async () => {
             try {
                 const res = await axios.get("http://localhost:8800/taskData")
-                setTaskList(res.data)
+                setTaskList(res.data.reverse())
             } catch (err) {
                 console.log(err)
             }

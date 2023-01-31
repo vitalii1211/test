@@ -35,7 +35,7 @@ function AddTaskItem(props) {
 
     return (
         <div>
-            <input value={newInputItem} onChange={(e) => setNewInputItem(e.target.value)}/>
+            <input width="100px" value={newInputItem} onChange={(e) => setNewInputItem(e.target.value)}/>
             <button onClick={OnAddTaskItem}>+</button>
         </div>
     );

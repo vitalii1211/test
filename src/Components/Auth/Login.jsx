@@ -12,10 +12,11 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import {createTheme, ThemeProvider} from '@mui/material/styles';
-import {Link as RouterLink, LinkProps as RouterLinkProps} from 'react-router-dom';
+import {Link as RouterLink, LinkProps as RouterLinkProps, useNavigate} from 'react-router-dom';
 import {useEffect, useState} from "react";
 import axios from "axios";
-import TodoContainer from "../Todo/TodoContainer";
+import {useAuth} from "./auth";
+import AcUnitIcon from '@mui/icons-material/AcUnit';
 
 
 function Copyright(props) {
@@ -33,29 +34,38 @@ function Copyright(props) {
 
 const theme = createTheme();
 
-export default function Login() {
+export default function Login(props) {
     const [userEmail, setUserEmail] = useState("")
     const [userPassword, setUserPassword] = useState("")
-    const [loginStatus, setLoginStatus] = useState("")
+    const [loginStatus, setLoginStatus] = useState(false)
+    const auth = useAuth()
+    const navigate = useNavigate()
 
     axios.defaults.withCredentials = true;
 
-    const handleSubmit = async (event) => {
+    const handleSubmitLogin = async (event) => {
         event.preventDefault();
+
         const userLogin = {
             userEmail: userEmail,
             userPassword: userPassword
         }
+
         try {
-            await axios.post('http://localhost:8800/login', userLogin)
+            await axios.post('http://localhost:8800/loginOnSubmit', userLogin)
                 .then((response) => {
-                    if (response.data.message) {
-                        setLoginStatus(response.data.message)
+                    if (!response.data.auth) {
+                        setLoginStatus(false)
                     } else {
-                        setLoginStatus(response.data[0].first_name + " " + response.data[0].last_name)
+                        // токен, который получаем с сервера, кладем в local storage
+                        localStorage.setItem("token", response.data.token)
+                        setLoginStatus(true)
+                        console.log("response.data @handleSubmitLogin", response.data)
+                        const fullName = response.data.result[0].first_name + " " + response.data.result[0].last_name
+                        auth.login(fullName)
+                        navigate("/")
                     }
                 });
-
         } catch (err) {
             console.log(err)
         }
@@ -65,16 +75,48 @@ export default function Login() {
         axios.get("http://localhost:8800/login")
             .then(
                 (response) => {
+                    console.log("loggedIn", response.data.loggedIn)
+                    console.log("loginStatus", loginStatus)
                     if (response.data.loggedIn) {
-                        setLoginStatus(response.data.user[0].first_name)
+                        setLoginStatus(true)
                     }
                 }
             )
     }, [])
 
+    const userAuthenticated = () => {
+        axios.get("http://localhost:8800/isUserAuth", {
+            headers: {
+                "x-access-token": localStorage.getItem("token")
+            }
+        })
+            .then((response) => {
+                console.log(response.data)
+
+            })
+    }
+
+    const userLoggedIn = () => {
+        axios.get("http://localhost:8800/login")
+            .then(
+                (response) => {
+                    console.log("loggedIn", response.data.loggedIn)
+                }
+            )
+    }
+
+
     return (
+
         <ThemeProvider theme={theme}>
             <Container component="main" maxWidth="xs">
+
+                {loginStatus &&
+                    <>
+                        <button onClick={userAuthenticated}>Check if Authenticated</button>
+                        <button onClick={userLoggedIn}>Check if Logged in</button>
+                    </>
+                }
                 <CssBaseline/>
                 <Box
                     sx={{
@@ -88,10 +130,17 @@ export default function Login() {
                         <LockOutlinedIcon/>
                     </Avatar>
                     <Typography component="h1" variant="h5">
+                        <AcUnitIcon/>
                         Login
+
+
                     </Typography>
-                    <Box component="form" onSubmit={handleSubmit} noValidate sx={{mt: 1}}>
-                        {loginStatus}
+
+
+
+                    <Box component="form" onSubmit={handleSubmitLogin} noValidate sx={{mt: 1}}>
+
+
                         <TextField
                             margin="normal"
                             required

@@ -5,13 +5,15 @@ import bcrypt from 'bcrypt'
 import cookieParser from 'cookie-parser'
 import bodyParser from "body-parser";
 import session from 'express-session'
+import jwt from 'jsonwebtoken'
+
 
 const app = express()
 
 app.use(express.json())
-app.use(cors ({
+app.use(cors({
     origin: ("http://localhost:3000"),
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
 }))
 app.use(cookieParser())
@@ -41,18 +43,29 @@ app.post("/register", (req, res) => {
     const userLastName = req.body.userLastName
     const userEmail = req.body.userEmail
     const userPassword = req.body.userPassword
-    bcrypt.hash(userPassword, saltRounds, (err, hash) => {
-        if (err) {
-            console.log(err)
-        }
-        const q = "INSERT INTO users (id, first_name, last_name, email, password) VALUES (?, ?, ?, ?, ?)"
-        db.query(q, [id, userFirstName, userLastName, userEmail, hash], (err) => {
-            if (err) return res.json(err)
-        })
-    })
-})
+    // надо проверить, нет ли такого е-мейл в БД
 
-app.post("/login", (req, res) => {
+    const ifUserExist = "SELECT * FROM users WHERE email = ?"
+    db.query(ifUserExist, userEmail, (err, result) => {
+        if (result.length > 0) {
+            res.json({message: "Такой пользователи уже зарегистрирован, войдите", result: result})
+        } else {
+            bcrypt.hash(userPassword, saltRounds, (err, hash) => {
+                if (err) {
+                    console.log(err)
+                }
+                const q = "INSERT INTO users (id, first_name, last_name, email, password) VALUES (?, ?, ?, ?, ?)"
+                db.query(q, [id, userFirstName, userLastName, userEmail, hash], (err) => {
+                    if (err) return res.json(err)
+                    res.json({message: "Пользователь создан"})
+                })
+            })
+        }
+    })
+
+
+})
+app.post("/loginOnSubmit", (req, res) => {
     const email = req.body.userEmail
     const password = req.body.userPassword
     const q = "SELECT * FROM users WHERE email = ?"
@@ -63,31 +76,58 @@ app.post("/login", (req, res) => {
             if (result.length > 0) {
                 bcrypt.compare(password, result[0].password, (err, response) => {
                     if (response) {
+                        // создаем jwt каждый раз как пользователь авторизуется
+                        const id = result[0].id
+                        // jwtSecret - вынести это значение в env
+                        // дальше мы передаем в токен id
+                        const token = jwt.sign({id}, "jwtSecret", {
+                            expiresIn: 300,
+                        })
+                        // создаем сессию на сервере, кладем в нее result и отдаем ее на фронт
                         req.session.user = result;
-                        console.log(req.session.user)
-                        res.send(result)
+                        res.json({auth: true, token: token, result: result})
                     } else {
-                        res.send({message: "Неверный е-мейл или пароль"})
+                        res.json({auth: false, message: "Неверный е-мейл или пароль"})
                     }
                 });
             } else {
-                res.send({message: "Пользователь не найден"})
+                res.json({auth: false, message: "Пользователь не найден"})
             }
         }
     })
 })
 
+// middleware
+const verifyJWT = (req, res, next) => {
+    const token = req.headers["x-access-token"]
+
+    if(!token) {
+        res.send("We need a token, please give it to us next time")
+    } else {
+        jwt.verify(token, "jwtSecret", (err, decoded) => {
+            if(err) {
+                res.json({auth: false, message: "You failed to authenticate"})
+            } else {
+                req.userId = decoded.id;
+                next();
+            }
+        })
+    }
+}
+
+app.get("/isUserAuth", verifyJWT, (req, res) => {
+    res.send("You are authenticated!")
+})
+
 app.get("/login", (req, res) => {
-if (req.session.user) {
+if (req.session.user) { // проверяем, есть ли сессия на сервере
     res.send({loggedIn: true, user: req.session.user})
 } else {
     res.send({loggedIn: false})
 }
 })
 
-app.get("/", (req, res) => {
-    res.json("Hello!")
-})
+
 
 app.get("/todoData", (req, res) => {
     const q = "SELECT * FROM todo_list;"
@@ -96,15 +136,6 @@ app.get("/todoData", (req, res) => {
         return res.json(data)
     })
 })
-
-app.get("/taskData", (req, res) => {
-    const q = "SELECT * FROM task_list;"
-    db.query(q, (err, data) => {
-        if (err) return res.json(err)
-        return res.json(data)
-    })
-})
-
 app.post("/addTodoItem", (req, res) => {
     const values = [
         req.body.name
@@ -116,37 +147,6 @@ app.post("/addTodoItem", (req, res) => {
         return res.json(results.insertId)
     })
 })
-
-app.post ("/addTaskItem", (req, res) => {
-    const values = [
-        req.body.todo_id,
-        req.body.title,
-        req.body.isDone,
-        req.body.isDeleted,
-        req.body.dateTime
-    ]
-    const q = "INSERT INTO task_list (todo_id, title, isDone, isDeleted, dateTime) VALUES (?)"
-
-    db.query(q,[values],(err,results) => {
-        if(err) return res.json(err)
-        return res.json(results.insertId)
-    })
-})
-
-app.put("/updateTaskItem/:id", (req, res) => {
-    const id = req.params.id;
-    const q = "UPDATE task_list SET isDeleted = ?, isDone = ? WHERE id = ?"
-    const values = [
-        req.body.isDeleted,
-        req.body.isDone
-    ]
-
-    db.query(q, [...values, id], (err, results) => {
-        if (err) return res.json(err)
-        return res.json(results.insertId)
-    })
-})
-
 app.put("/editTodoItem/:id", (req, res) => {
     const id = req.params.id;
     const q = "UPDATE todo_list SET name = ? WHERE id = ?"
@@ -160,7 +160,51 @@ app.put("/editTodoItem/:id", (req, res) => {
 
     })
 })
+app.delete("/deleteTodoItem/:id", (req, res) => {
+    const todo_id = req.params.id;
+    const q = "DELETE FROM todo_list WHERE id = ?"
+    db.query(q, [todo_id], (err) => {
+        if (err) return res.json(err)
+        return res.json("Данные успешно удалены!")
+    })
+});
 
+
+app.get("/taskData", (req, res) => {
+    const q = "SELECT * FROM task_list;"
+    db.query(q, (err, data) => {
+        if (err) return res.json(err)
+        return res.json(data)
+    })
+})
+app.post("/addTaskItem", (req, res) => {
+    const values = [
+        req.body.todo_id,
+        req.body.title,
+        req.body.isDone,
+        req.body.isDeleted,
+        req.body.dateTime
+    ]
+    const q = "INSERT INTO task_list (todo_id, title, isDone, isDeleted, dateTime) VALUES (?)"
+
+    db.query(q, [values], (err, results) => {
+        if (err) return res.json(err)
+        return res.json(results.insertId)
+    })
+})
+app.put("/updateTaskItem/:id", (req, res) => {
+    const id = req.params.id;
+    const q = "UPDATE task_list SET isDeleted = ?, isDone = ? WHERE id = ?"
+    const values = [
+        req.body.isDeleted,
+        req.body.isDone
+    ]
+
+    db.query(q, [...values, id], (err, results) => {
+        if (err) return res.json(err)
+        return res.json(results.insertId)
+    })
+})
 app.put("/editTaskItem/:id", (req, res) => {
     const id = req.params.id;
     const q = "UPDATE task_list SET title = ? WHERE id = ?"
@@ -174,16 +218,6 @@ app.put("/editTaskItem/:id", (req, res) => {
 
     })
 })
-
-app.delete("/deleteTodoItem/:id", (req, res) => {
-    const todo_id = req.params.id;
-    const q = "DELETE FROM todo_list WHERE id = ?"
-    db.query(q, [todo_id], (err) => {
-        if (err) return res.json(err)
-        return res.json("Данные успешно удалены!")
-    })
-});
-
 app.delete("/deleteTaskItem/:id", (req, res) => {
     const id = req.params.id;
     const q = "DELETE FROM task_list WHERE id = ?"
@@ -193,18 +227,7 @@ app.delete("/deleteTaskItem/:id", (req, res) => {
     })
 });
 
+
 app.listen(8800, () => {
     console.log('connection!')
 });
-
-
-
-// app.delete("/updateTaskItem/:id", (req, res) => {
-//     const id = req.params.id;
-//     const q = "DELETE FROM task_list WHERE id = ?"
-//
-//     db.query(q, id, (err) => {
-//         if (err) return res.json(err)
-//         return res.json("Данные успешно записаны!")
-//     })
-// })

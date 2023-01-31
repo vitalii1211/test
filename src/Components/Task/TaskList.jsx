@@ -14,21 +14,20 @@ function TaskList(props) {
             return el.isDeleted
         }
     })
-    debugger
+// const reversedFilteredItems = filteredItems.reverse()
 
     return (
         <div>
             {filteredItems
-                .sort((a, b) => (b.id) - new Date(a.id))
                 .filter(el => el.todo_id === props.todoItem.id)
-
-                .map((taskItem, i) => <TaskItem
+                .map(taskItem => <TaskItem
                     key={taskItem.id}
                     taskItem={taskItem}
                     taskList={props.taskList}
                     setTaskList={props.setTaskList}
                     todoItem={props.todoItem}
                     editMode={props.editMode}
+                    filteredItems={filteredItems}
                 />)
             }
         </div>
