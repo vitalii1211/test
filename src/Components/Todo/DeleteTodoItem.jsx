@@ -7,7 +7,7 @@ function DeleteTodoItem(props) {
         const updatedTodoList = props.todoList.filter((todoItem) => todoItem.id !== id)
         props.setTodoList(updatedTodoList)
         try {
-            await axios.delete("http://localhost:8800/deleteTodoItem/" + id)
+            await axios.delete("http://localhost:8800/todo/" + id)
         } catch (err) {
             console.log(err)
         }
@@ -16,11 +16,13 @@ function DeleteTodoItem(props) {
         // надо еще сделать проверку, есть ли такси вложенные, и если есть, то выводить алерт
         // вот только таски подсасываются из БД ниже, и todoList ничего не знает о taskList. получается, это неправильно?
         // нужно все данные всасывать на верхнмем уровне и прокидывать пропсами?
-    //     использовать useContext для task?
+        //     использовать useContext для task?
+
     }
 
     return (
-        <ClearIcon color="secondary" role="button" onClick={(e) => OnDeleteTodoItem(props.todoItem.id)}/>
+        <button
+            onClick={(e) => OnDeleteTodoItem(props.todoItem.id)}>X</button>
     );
 }
 

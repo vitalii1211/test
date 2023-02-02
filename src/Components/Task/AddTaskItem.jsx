@@ -1,13 +1,13 @@
 import React, {useState} from 'react';
 import axios from "axios";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import AddIcon from '@mui/icons-material/Add';
 
 function AddTaskItem(props) {
     const [newInputItem, setNewInputItem] = useState("")
-    // передачу строки из поля ввода реализовал по-разному здесь и в AddTodoItem.
-    // здесь - передача по каждому символу, в AddTodoItem - по нажатию кнопки.
-    // Здесь я знаю как очистить поле, там - нет
 
-    const OnAddTaskItem = async () => {
+    const HandleAddTaskItem = async () => {
         let newTaskItem = {
             id: null,
             todo_id: props.todoItem.id,
@@ -16,12 +16,8 @@ function AddTaskItem(props) {
             dateTime: "2019-03-28 10:00:00",
             isDeleted: false
         }
-
-        console.log(newTaskItem)
-
-
         try {
-            await axios.post("http://localhost:8800/addTaskItem", newTaskItem)
+            await axios.post("http://localhost:8800/task", newTaskItem)
                 .then(function (response) {
                     newTaskItem.id = response.data
                     props.setFilterState("All")
@@ -35,8 +31,14 @@ function AddTaskItem(props) {
 
     return (
         <div>
-            <input width="100px" value={newInputItem} onChange={(e) => setNewInputItem(e.target.value)}/>
-            <button onClick={OnAddTaskItem}>+</button>
+            <TextField
+                sx={{ mt: 1, mb: 1}}
+                size="small"
+                label="Добавить заметку"
+                value={newInputItem} onChange={(e) => setNewInputItem(e.target.value)}
+                onKeyDown={(e) => {if (e.keyCode === 13) {HandleAddTaskItem()}}}
+            />
+            <Button sx={{ mt: 1, mb: 1}} variant="contained" onClick={HandleAddTaskItem}> + </Button>
         </div>
     );
 }

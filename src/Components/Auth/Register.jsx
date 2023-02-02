@@ -15,7 +15,6 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import {Link as RouterLink, LinkProps as RouterLinkProps, useNavigate} from 'react-router-dom';
 import {useState} from "react";
 import axios from "axios";
-import {Navigate} from "react-router-dom";
 
 
 function Copyright(props) {
@@ -38,15 +37,9 @@ export default function Register () {
     const [userLastName, setUserLastName] = useState("")
     const [userEmail, setUserEmail] = useState("")
     const [userPassword, setUserPassword] = useState("")
-    const [success, setSuccess] = useState(false)
-
-    // axios.defaults.withCredentials = true;
-    console.log("success", success)
+    const navigate = useNavigate();
 
     const handleSubmit = async (event) => {
-        setSuccess(true)
-        console.log("success", success)
-
         event.preventDefault();
         const newUser = {
             id: null,
@@ -57,19 +50,8 @@ export default function Register () {
         }
 
             await axios.post('http://localhost:8800/register', newUser)
-                // .then((response) => {
-                //     // console.log(response.data.result)
-                //
-
-
-
-
-
-
-
-
+        navigate("/login")
     };
-
 
 
     return (

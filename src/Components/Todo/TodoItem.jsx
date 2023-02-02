@@ -3,6 +3,7 @@ import DeleteTodoItem from "./DeleteTodoItem";
 import TaskContainer from "../Task/TaskContainer";
 import axios from "axios";
 import {Card, CardContent, Paper} from "@mui/material";
+import Typography from "@mui/material/Typography";
 
 export function TodoItem(props) {
     const [editState, setEditState] = useState(false)
@@ -27,7 +28,7 @@ export function TodoItem(props) {
         setEditState(!editState)
         const updatedTodoItem = updatedTodoList.filter(todoItem => todoItem.id === id)
         try {
-            await axios.put("http://localhost:8800/editTodoItem/" + id, {name: updatedTodoItem[0].name})
+            await axios.put("http://localhost:8800/todo/" + id, {name: updatedTodoItem[0].name})
         } catch (err) {
             console.log(err)
         }
@@ -37,14 +38,10 @@ export function TodoItem(props) {
     return (
         <Paper elevation={10}>
             <CardContent>
-                <h3
+                <Typography
+                    variant="h4"
                     onDoubleClick={OnClickChangeEditState}
                     onBlur={() => OnClickSaveUpdatedTitle(props.todoItem)}
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        flexWrap: 'wrap'
-                    }}
                 >
                     {!editState
                         ?
@@ -74,10 +71,12 @@ export function TodoItem(props) {
                             />
                         </>
                     }
-                </h3>
+                </Typography>
                 <TaskContainer
                     todoItem={props.todoItem}
                     editMode={props.editMode}
+                    searchItem={props.searchItem}
+                    setSearchItem={props.setSearchItem}
 
                 />
             </CardContent>

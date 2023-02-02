@@ -6,7 +6,7 @@ import Login from "./Components/Auth/Login";
 import {Routes, Route, BrowserRouter} from 'react-router-dom'
 import {AuthProvider} from "./Components/Auth/auth";
 import RequireAuth from "./Components/Auth/RequireAuth";
-import Test from "./Components/Test";
+import Test from "./Test";
 
 function App() {
 

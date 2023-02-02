@@ -11,8 +11,8 @@ function TaskContainer(props) {
     useEffect(() => {
         const fetchTodoData = async () => {
             try {
-                const res = await axios.get("http://localhost:8800/taskData")
-                setTaskList(res.data.reverse())
+                const res = await axios.get("http://localhost:8800/task")
+                setTaskList(res.data)
             } catch (err) {
                 console.log(err)
             }
@@ -36,6 +36,8 @@ function TaskContainer(props) {
                 filterState={filterState}
                 todoItem={props.todoItem}
                 editMode={props.editMode}
+                searchItem={props.searchItem}
+                setSearchItem={props.setSearchItem}
 
             />
 

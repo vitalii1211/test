@@ -7,7 +7,6 @@ import bodyParser from "body-parser";
 import session from 'express-session'
 import jwt from 'jsonwebtoken'
 
-
 const app = express()
 
 app.use(express.json())
@@ -24,7 +23,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        express: 60 * 60 * 24,
+        expires: 60 * 60 * 24,
     }
 }))
 
@@ -35,6 +34,49 @@ const db = mysql.createConnection({
     database: "new_schema"
 })
 const saltRounds = 10
+// middleware
+const verifyJWT = (req, res, next) => {
+    const token = req.headers["x-access-token"]
+
+    if (!token) {
+        res.send("We need a token, please give it to us next time")
+    } else {
+        jwt.verify(token, "jwtSecret", (err, decoded) => {
+            if (err) {
+                res.json({auth: false, message: "You failed to authenticate"})
+            } else {
+                req.userId = decoded.id;
+                next();
+            }
+        })
+    }
+}
+
+export const refreshToken = async (req, res) => {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) return res.sendStatus(401);
+
+    const q = "SELECT * FROM users WHERE refresh_token = ?"
+    db.query(q, refreshToken, (err, result) => {
+        if (err) {
+            console.log(err)
+        } else {
+            if (result.length > 0) {
+                jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
+                    if (err) return res.sendStatus(403);
+                    const userId = result[0].id;
+                    const firstName = result[0].first_name;
+                    const lastName = result[0].last_name;
+                    const email = result[0].email;
+                    const accessToken = jwt.sign({userId, firstName, lastName, email}, "jwtSecret1212121", {
+                        expiresIn: '15s'
+                    });
+                    res.json({accessToken});
+                });
+            }
+        }
+    })
+}
 
 
 app.post("/register", (req, res) => {
@@ -78,12 +120,14 @@ app.post("/loginOnSubmit", (req, res) => {
                     if (response) {
                         // создаем jwt каждый раз как пользователь авторизуется
                         const id = result[0].id
+                        // const email = result[0].email
                         // jwtSecret - вынести это значение в env
                         // дальше мы передаем в токен id
                         const token = jwt.sign({id}, "jwtSecret", {
                             expiresIn: 300,
                         })
-                        // создаем сессию на сервере, кладем в нее result и отдаем ее на фронт
+
+                        // // создаем сессию на сервере, кладем в нее result и отдаем ее на фронт
                         req.session.user = result;
                         res.json({auth: true, token: token, result: result})
                     } else {
@@ -97,46 +141,25 @@ app.post("/loginOnSubmit", (req, res) => {
     })
 })
 
-// middleware
-const verifyJWT = (req, res, next) => {
-    const token = req.headers["x-access-token"]
-
-    if(!token) {
-        res.send("We need a token, please give it to us next time")
+app.get("/login", (req, res) => {
+    if (req.session.user) { // проверяем, есть ли сессия на сервере
+        res.send({loggedIn: true, user: req.session.user})
     } else {
-        jwt.verify(token, "jwtSecret", (err, decoded) => {
-            if(err) {
-                res.json({auth: false, message: "You failed to authenticate"})
-            } else {
-                req.userId = decoded.id;
-                next();
-            }
-        })
+        res.send({loggedIn: false})
     }
-}
-
+})
 app.get("/isUserAuth", verifyJWT, (req, res) => {
     res.send("You are authenticated!")
 })
 
-app.get("/login", (req, res) => {
-if (req.session.user) { // проверяем, есть ли сессия на сервере
-    res.send({loggedIn: true, user: req.session.user})
-} else {
-    res.send({loggedIn: false})
-}
-})
-
-
-
-app.get("/todoData", (req, res) => {
+app.get("/todo", (req, res) => {
     const q = "SELECT * FROM todo_list;"
     db.query(q, (err, data) => {
         if (err) return res.json(err)
         return res.json(data)
     })
 })
-app.post("/addTodoItem", (req, res) => {
+app.post("/todo", (req, res) => {
     const values = [
         req.body.name
     ]
@@ -147,7 +170,7 @@ app.post("/addTodoItem", (req, res) => {
         return res.json(results.insertId)
     })
 })
-app.put("/editTodoItem/:id", (req, res) => {
+app.put("/todo/:id", (req, res) => {
     const id = req.params.id;
     const q = "UPDATE todo_list SET name = ? WHERE id = ?"
     const values = [
@@ -160,7 +183,7 @@ app.put("/editTodoItem/:id", (req, res) => {
 
     })
 })
-app.delete("/deleteTodoItem/:id", (req, res) => {
+app.delete("/todo/:id", (req, res) => {
     const todo_id = req.params.id;
     const q = "DELETE FROM todo_list WHERE id = ?"
     db.query(q, [todo_id], (err) => {
@@ -169,15 +192,14 @@ app.delete("/deleteTodoItem/:id", (req, res) => {
     })
 });
 
-
-app.get("/taskData", (req, res) => {
+app.get("/task", (req, res) => {
     const q = "SELECT * FROM task_list;"
     db.query(q, (err, data) => {
         if (err) return res.json(err)
         return res.json(data)
     })
 })
-app.post("/addTaskItem", (req, res) => {
+app.post("/task", (req, res) => {
     const values = [
         req.body.todo_id,
         req.body.title,
@@ -192,12 +214,13 @@ app.post("/addTaskItem", (req, res) => {
         return res.json(results.insertId)
     })
 })
-app.put("/updateTaskItem/:id", (req, res) => {
+app.put("/task/:id", (req, res) => {
     const id = req.params.id;
-    const q = "UPDATE task_list SET isDeleted = ?, isDone = ? WHERE id = ?"
+    const q = "UPDATE task_list SET isDeleted = ?, isDone = ?, title = ? WHERE id = ?"
     const values = [
         req.body.isDeleted,
-        req.body.isDone
+        req.body.isDone,
+        req.body.title
     ]
 
     db.query(q, [...values, id], (err, results) => {
@@ -205,20 +228,7 @@ app.put("/updateTaskItem/:id", (req, res) => {
         return res.json(results.insertId)
     })
 })
-app.put("/editTaskItem/:id", (req, res) => {
-    const id = req.params.id;
-    const q = "UPDATE task_list SET title = ? WHERE id = ?"
-    const values = [
-        req.body.title
-    ]
-
-    db.query(q, [...values, id], (err) => {
-        if (err) return res.json(err)
-        return res.json("Данные успешно записаны!")
-
-    })
-})
-app.delete("/deleteTaskItem/:id", (req, res) => {
+app.delete("/task/:id", (req, res) => {
     const id = req.params.id;
     const q = "DELETE FROM task_list WHERE id = ?"
     db.query(q, [id], (err) => {
@@ -227,7 +237,8 @@ app.delete("/deleteTaskItem/:id", (req, res) => {
     })
 });
 
-
 app.listen(8800, () => {
     console.log('connection!')
 });
+
+export default db;

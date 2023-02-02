@@ -1,22 +1,18 @@
-import React, {useState} from 'react';
+import React, {useState} from "react";
+import { Reorder } from "framer-motion"
 
-function Test(props) {
-
-    const [count, setCount] = useState(10)
-    const OnClick = () => {
-        setCount(count - 1)
-    }
-
-    const conslog = () => {
-        console.log ("Ghbdn")
-    }
+function Test() {
+    const [items, setItems] = useState([0, 1, 2, 3])
 
     return (
-        <div>
-            <h1 onClick={OnClick}>{count}</h1>
-            <button onClick={conslog}></button>
-        </div>
-    );
+        <Reorder.Group values={items} onReorder={setItems}>
+            {items.map(item => (
+                <Reorder.Item key={item} value={item}>
+                    {item}
+                </Reorder.Item>
+            ))}
+        </Reorder.Group>
+    )
 }
 
-export default Test;
+export default Test

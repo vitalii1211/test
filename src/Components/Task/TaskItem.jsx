@@ -1,36 +1,41 @@
 import React, {useState} from "react";
 import DeleteTaskItem from "./DeleteTaskItem";
 import axios from "axios";
+import TaskItemTitle from "./TaskItemTitle";
+import Typography from "@mui/material/Typography";
+import Checkbox from "@mui/material/Checkbox";
 
 function TaskItem(props) {
     const [editState, setEditState] = useState(false)
     const [inputValue, setInputValue] = useState(props.taskItem.title)
 
-    const OnClickChecked = async (id) => {
-        const updatedTaskList = props.taskList.map(taskItem => taskItem.id === id
-            ? {...taskItem, isDone: !taskItem.isDone}
-            : taskItem)
+    const HandleUpdateItem = async (id, value) => {
+        const updatedTaskList = props.taskList.map(taskItem =>
+            taskItem.id === id
+                ? value === "isDone"
+                    ? {...taskItem, isDone: !taskItem.isDone}
+                    : value === "title"
+                        ? {...taskItem, title: inputValue}
+                        : value === "isDeleted"
+                            ? {...taskItem, isDeleted: !taskItem.isDeleted}
+                            : taskItem : taskItem)
         props.setTaskList(updatedTaskList);
+        if (value === "title") {
+            setEditState(!editState)
+        }
         try {
             const updatedTaskItem = updatedTaskList.find(taskItem => taskItem.id === id)
-            console.log(updatedTaskItem)
-            // const updatedTaskItem = updatedTaskList.filter(taskItem => taskItem.id === id)
-            await axios.put("http://localhost:8800/updateTaskItem/" + id,
-                {isDone: updatedTaskItem.isDone, isDeleted: updatedTaskItem.isDeleted})
+            await axios.put("http://localhost:8800/task/" + id, updatedTaskItem)
         } catch (err) {
             console.log(err)
         }
     }
 
-    const OnClickSaveUpdatedTitle = async (id) => {
-        const updatedTaskList = props.taskList.map(taskItem => taskItem.id === id
-            ? {...taskItem, title: inputValue}
-            : taskItem)
-        props.setTaskList(updatedTaskList);
-        setEditState(!editState)
-        const updatedTaskItem = updatedTaskList.filter(taskItem => taskItem.id === id)
+    const HandleDeleteForever = async (id) => {
+        const updatedTaskList = props.taskList.filter((i) => i.id !== id)
+        props.setTaskList(updatedTaskList)
         try {
-            await axios.put("http://localhost:8800/editTaskItem/" + id, {title: updatedTaskItem[0].title})
+            await axios.delete("http://localhost:8800/task/" + id)
         } catch (err) {
             console.log(err)
         }
@@ -49,49 +54,48 @@ function TaskItem(props) {
 
     return (
         <div>
+
             <table>
                 <tbody>
                 <tr>
                     <td>
-                        <input type="checkbox"
-                               width="fullWidth"
-                               disabled={props.taskItem.isDeleted && true}
-                               onChange={() => OnClickChecked(props.taskItem.id)}
-                               checked={props.taskItem.isDone}
+                        <Checkbox
+                            // input type="checkbox"
+                            width="fullWidth"
+                            disabled={props.taskItem.isDeleted && true}
+                            onChange={() => HandleUpdateItem(props.taskItem.id, "isDone")}
+                            checked={props.taskItem.isDone}
                         />
                     </td>
-                    <td onDoubleClick={OnClickChangeEditState}
-                        style={(props.taskItem.isDone) ? {textDecoration: 'line-through'} : null}>
-                        {!editState
-                            ? props.taskItem.title
-                            : <input type="text"
-                                     autoFocus={true}
-                                     value={inputValue}
-                                     onChange={(e) => setInputValue(e.target.value)}
-                                     onBlur={() => OnClickSaveUpdatedTitle(props.taskItem.id)}
-                                     onKeyDown={(e) => {
-                                         if (e.keyCode === 13) {
-                                             OnClickSaveUpdatedTitle(props.taskItem.id);
-                                         } else if (e.keyCode === 27) {
-                                             OnClickCancelEdit()
-                                         }
-                                     }}
-                            />
-                        }
+                    <td><Typography variant="body1">
+                        <TaskItemTitle
+                        OnClickChangeEditState={OnClickChangeEditState}
+                        editState={editState}
+                        HandleUpdateItem={HandleUpdateItem}
+                        inputValue={inputValue}
+                        setInputValue={setInputValue}
+                        taskItem={props.taskItem}
+                    /> </Typography>
                     </td>
-                    <td>
+                    <td><>
+                        {!props.taskItem.isDeleted
+                            ? !props.editState && props.editMode &&
+                            <button onClick={() => HandleUpdateItem(props.taskItem.id, "isDeleted")}>X</button>
+                            : <button onClick={() => HandleUpdateItem(props.taskItem.id, "isDeleted")}>---</button>
+                        }
+
                         <DeleteTaskItem
                             taskItem={props.taskItem}
                             taskList={props.taskList}
                             setTaskList={props.setTaskList}
-                            todoItem={props.todoItem}
-                            editState={editState}
-                            editMode={props.editMode}
+                            HandleDeleteForever={HandleDeleteForever}
                         />
+                    </>
                     </td>
                 </tr>
                 </tbody>
             </table>
+
         </div>
     )
 }

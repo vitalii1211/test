@@ -6,6 +6,8 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import AddTodoItem from "./AddTodoItem";
 import {useAuth} from "../Auth/auth";
 import {useNavigate} from "react-router-dom";
+import Search from "../Search";
+
 
 
 function TodoList(props) {
@@ -13,10 +15,11 @@ function TodoList(props) {
     const [editMode, setEditMode] = useState(false)
     const API_URL=props.API_URL
 
+
     useEffect(() => {
         const fetchTodoData = async () => {
             try {
-                const res = await axios.get(API_URL + "/todoData")
+                const res = await axios.get(API_URL + "/todo")
                 setTodoList(res.data)
             } catch (err) {
                 console.log(err)
@@ -63,25 +66,18 @@ function TodoList(props) {
             )
     }
 
-
-
+    const [searchItem, setSearchItem] = useState("")
 
     return (
             <>
-                <FormControlLabel sx={{m: 3}} onClick={SwitchEditMode} control={<Switch/>} label={
-                    editMode ?
+                <FormControlLabel sx={{m: 3}} onClick={SwitchEditMode} control={<Switch/>} label={ editMode ?
                         "Редактирование"
                         : "Чтение"
-                }
+                }/>
+                <Search
+                    searchItem={searchItem}
+                    setSearchItem={setSearchItem}
                 />
-                Привет, {auth.user}!
-
-                <button onClick={HandleLogout}>Logout</button>
-
-                <>
-                    <button onClick={userAuthenticated}>Check if Authenticated</button>
-                    <button onClick={userLoggedIn}>Check if Logged in</button>
-                </>
 
                 {editMode &&
                     <AddTodoItem
@@ -90,6 +86,7 @@ function TodoList(props) {
                         editMode={editMode}
                     />
                 }
+
                 <div className="App">
                     {todoList.map((todoItem) =>
                         <TodoItem key={todoItem.id}
@@ -98,6 +95,8 @@ function TodoList(props) {
                                   todoList={todoList}
                                   setTodoList={setTodoList}
                                   editMode={editMode}
+                                  searchItem={searchItem}
+                                  setSearchItem={setSearchItem}
                         />
                     )}
                 </div>

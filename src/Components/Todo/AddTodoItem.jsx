@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import TextField from "@mui/material/TextField";
 import axios from "axios";
+import Button from "@mui/material/Button";
 
 function AddTodoItem(props) {
 
@@ -18,7 +19,7 @@ function AddTodoItem(props) {
         console.log("name", newTodoItem)
 
         try {
-            await axios.post("http://localhost:8800/addTodoItem", newTodoItem)
+            await axios.post("http://localhost:8800/todo", newTodoItem)
                 .then(function (response) {
                     newTodoItem.id = response.data
                     console.log("newInputItem", newTodoItem.id)
@@ -39,15 +40,8 @@ function AddTodoItem(props) {
                 value={newInputItem}
                 onChange={(e) => setNewInputItem(e.target.value)}
             />
-            <button onClick={OnAddTodoItem}>+</button>
 
-            {/*<TextField sx={{ mt: 3, mr: 2}}*/}
-            {/*    label="Добавить новый лист"*/}
-            {/*    id="outlined-size-small"*/}
-            {/*           value={newInputItem}*/}
-            {/*    size="small"*/}
-            {/*           onChange={(event) => setNewInputItem(event.target.value)}/>*/}
-            {/*<button onClick={OnAddTodoItem}>Добавить</button>*/}
+            <Button variant="contained" size="small" onClick={OnAddTodoItem}>Добавить</Button>
         </>);
 }
 
