@@ -38,7 +38,6 @@ function TaskContainer(props) {
                 editMode={props.editMode}
                 searchItem={props.searchItem}
                 setSearchItem={props.setSearchItem}
-
             />
 
             <FilterButtons
@@ -47,9 +46,6 @@ function TaskContainer(props) {
                 setFilterState={setFilterState}
 
             />
-
-            <File />
-
         </div>
     )
 }

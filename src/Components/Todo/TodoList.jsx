@@ -1,72 +1,40 @@
 import React, {useEffect, useState} from 'react';
 import {TodoItem} from "./TodoItem";
 import {Switch} from "@mui/material";
-import axios from "axios";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import AddTodoItem from "./AddTodoItem";
-import {useAuth} from "../Auth/auth";
-import {useNavigate} from "react-router-dom";
 import Search from "../Search";
+import { useNavigate } from "react-router-dom";
 
-
+import UserService from "../../Services/user.service";
+import AuthService from "../../Services/auth.service";
 
 function TodoList(props) {
     const [todoList, setTodoList] = useState([])
     const [editMode, setEditMode] = useState(false)
-    const API_URL=props.API_URL
-
+    const [searchItem, setSearchItem] = useState("")
+    const currentUser = AuthService.getCurrentUser();
+    const navigate = useNavigate()
 
     useEffect(() => {
-        const fetchTodoData = async () => {
-            try {
-                const res = await axios.get(API_URL + "/todo")
-                setTodoList(res.data)
-            } catch (err) {
-                console.log(err)
-            }
+        UserService.getTodoList().then(
+            (response) => {
+                setTodoList(response.data);
+            },
+        (error) => {
+            console.log(error)
         }
-        fetchTodoData()
-    }, [])
+        );
+    }, []);
 
     function SwitchEditMode() {
         setEditMode(!editMode)
     }
-    const auth = useAuth()
-    const navigate = useNavigate()
-    //
-    // console.log("auth.user", auth.user)
-    // user сюда приходит, но после перезагрузки страницы пропадает
-    // как здесь вызвать setUser?
 
-
-    const HandleLogout = () => {
-        auth.logout()
-        navigate('/')
+    const logout = () => {
+        AuthService.logout()
+        navigate("/login")
     }
-
-
-    const userAuthenticated = () => {
-        axios.get("http://localhost:8800/isUserAuth", {
-            headers: {
-                "x-access-token": localStorage.getItem("token")
-            }
-        })
-            .then((response) => {
-                console.log(response.data)
-
-            })
-    }
-
-    const userLoggedIn = () => {
-        axios.get("http://localhost:8800/login")
-            .then(
-                (response) => {
-                    console.log("loggedIn", response.data.loggedIn)
-                }
-            )
-    }
-
-    const [searchItem, setSearchItem] = useState("")
 
     return (
             <>
@@ -86,6 +54,9 @@ function TodoList(props) {
                         editMode={editMode}
                     />
                 }
+
+                <strong>Привет, {currentUser.result[0].first_name + " " + currentUser.result[0].last_name}!</strong>
+                <button onClick={logout} >Logout</button>
 
                 <div className="App">
                     {todoList.map((todoItem) =>

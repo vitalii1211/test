@@ -59,15 +59,15 @@ function TaskItem(props) {
                 <tbody>
                 <tr>
                     <td>
-                        <Checkbox
-                            // input type="checkbox"
+                        <input type="checkbox"
                             width="fullWidth"
                             disabled={props.taskItem.isDeleted && true}
                             onChange={() => HandleUpdateItem(props.taskItem.id, "isDone")}
                             checked={props.taskItem.isDone}
                         />
                     </td>
-                    <td><Typography variant="body1">
+                    <td>
+                        {/*<Typography variant="body1">*/}
                         <TaskItemTitle
                         OnClickChangeEditState={OnClickChangeEditState}
                         editState={editState}
@@ -75,7 +75,8 @@ function TaskItem(props) {
                         inputValue={inputValue}
                         setInputValue={setInputValue}
                         taskItem={props.taskItem}
-                    /> </Typography>
+                    />
+                        {/*</Typography>*/}
                     </td>
                     <td><>
                         {!props.taskItem.isDeleted

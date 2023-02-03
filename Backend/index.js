@@ -37,7 +37,6 @@ const saltRounds = 10
 // middleware
 const verifyJWT = (req, res, next) => {
     const token = req.headers["x-access-token"]
-
     if (!token) {
         res.send("We need a token, please give it to us next time")
     } else {
@@ -52,64 +51,36 @@ const verifyJWT = (req, res, next) => {
     }
 }
 
-export const refreshToken = async (req, res) => {
-    const refreshToken = req.cookies.refreshToken;
-    if (!refreshToken) return res.sendStatus(401);
-
-    const q = "SELECT * FROM users WHERE refresh_token = ?"
-    db.query(q, refreshToken, (err, result) => {
-        if (err) {
-            console.log(err)
-        } else {
-            if (result.length > 0) {
-                jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
-                    if (err) return res.sendStatus(403);
-                    const userId = result[0].id;
-                    const firstName = result[0].first_name;
-                    const lastName = result[0].last_name;
-                    const email = result[0].email;
-                    const accessToken = jwt.sign({userId, firstName, lastName, email}, "jwtSecret1212121", {
-                        expiresIn: '15s'
-                    });
-                    res.json({accessToken});
-                });
-            }
-        }
-    })
-}
-
-
 app.post("/register", (req, res) => {
     const id = req.body.id
     const userFirstName = req.body.userFirstName
     const userLastName = req.body.userLastName
     const userEmail = req.body.userEmail
     const userPassword = req.body.userPassword
-    // надо проверить, нет ли такого е-мейл в БД
-
+// проверка, нет ли такого пользователя (е-мейл)
     const ifUserExist = "SELECT * FROM users WHERE email = ?"
     db.query(ifUserExist, userEmail, (err, result) => {
         if (result.length > 0) {
             res.json({message: "Такой пользователи уже зарегистрирован, войдите", result: result})
         } else {
+// добавление нового пользователя в БД
             bcrypt.hash(userPassword, saltRounds, (err, hash) => {
-                if (err) {
-                    console.log(err)
-                }
                 const q = "INSERT INTO users (id, first_name, last_name, email, password) VALUES (?, ?, ?, ?, ?)"
                 db.query(q, [id, userFirstName, userLastName, userEmail, hash], (err) => {
                     if (err) return res.json(err)
                     res.json({message: "Пользователь создан"})
                 })
             })
+            if (err) {
+                console.log(err)
+            }
         }
     })
-
-
 })
-app.post("/loginOnSubmit", (req, res) => {
+app.post("/user", (req, res) => {
     const email = req.body.userEmail
     const password = req.body.userPassword
+    // отправиляет е-мейл и пароль, получает в ответ ПОЛЬЗОВАТЕЛЯ
     const q = "SELECT * FROM users WHERE email = ?"
     db.query(q, email, (err, result) => {
         if (err) {
@@ -118,16 +89,10 @@ app.post("/loginOnSubmit", (req, res) => {
             if (result.length > 0) {
                 bcrypt.compare(password, result[0].password, (err, response) => {
                     if (response) {
-                        // создаем jwt каждый раз как пользователь авторизуется
                         const id = result[0].id
-                        // const email = result[0].email
-                        // jwtSecret - вынести это значение в env
-                        // дальше мы передаем в токен id
                         const token = jwt.sign({id}, "jwtSecret", {
                             expiresIn: 300,
                         })
-
-                        // // создаем сессию на сервере, кладем в нее result и отдаем ее на фронт
                         req.session.user = result;
                         res.json({auth: true, token: token, result: result})
                     } else {
@@ -141,18 +106,7 @@ app.post("/loginOnSubmit", (req, res) => {
     })
 })
 
-app.get("/login", (req, res) => {
-    if (req.session.user) { // проверяем, есть ли сессия на сервере
-        res.send({loggedIn: true, user: req.session.user})
-    } else {
-        res.send({loggedIn: false})
-    }
-})
-app.get("/isUserAuth", verifyJWT, (req, res) => {
-    res.send("You are authenticated!")
-})
-
-app.get("/todo", (req, res) => {
+app.get("/todo", verifyJWT, (req, res) => {
     const q = "SELECT * FROM todo_list;"
     db.query(q, (err, data) => {
         if (err) return res.json(err)

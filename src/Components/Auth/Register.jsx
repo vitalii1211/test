@@ -13,8 +13,11 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import {Link as RouterLink, LinkProps as RouterLinkProps, useNavigate} from 'react-router-dom';
-import {useState} from "react";
+import {useState, useRef} from "react";
 import axios from "axios";
+
+// import AuthService from "../services/auth.service";
+
 
 
 function Copyright(props) {
@@ -48,7 +51,6 @@ export default function Register () {
             userEmail: userEmail,
             userPassword: userPassword
         }
-
             await axios.post('http://localhost:8800/register', newUser)
         navigate("/login")
     };

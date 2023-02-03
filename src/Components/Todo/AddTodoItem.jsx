@@ -41,7 +41,7 @@ function AddTodoItem(props) {
                 onChange={(e) => setNewInputItem(e.target.value)}
             />
 
-            <Button variant="contained" size="small" onClick={OnAddTodoItem}>Добавить</Button>
+            <Button sx={{ mr: 2}} variant="contained" size="small" onClick={OnAddTodoItem}>Добавить</Button>
         </>);
 }
 

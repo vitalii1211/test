@@ -7,7 +7,7 @@ function Search({ searchItem, setSearchItem }) {
         <TextField
             sx={{ mt: 3, mr: 2}}
             size="small"
-            label="Поиск"
+            label="Найти..."
             value={searchItem}
             onChange={(e) => setSearchItem(e.target.value)}
         />
