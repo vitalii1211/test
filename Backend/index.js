@@ -34,6 +34,7 @@ const db = mysql.createConnection({
     database: "new_schema"
 })
 const saltRounds = 10
+
 // middleware
 const verifyJWT = (req, res, next) => {
     const token = req.headers["x-access-token"]
@@ -77,7 +78,7 @@ app.post("/register", (req, res) => {
         }
     })
 })
-app.post("/user", (req, res) => {
+app.post("/login", (req, res) => {
     const email = req.body.userEmail
     const password = req.body.userPassword
     // отправиляет е-мейл и пароль, получает в ответ ПОЛЬЗОВАТЕЛЯ

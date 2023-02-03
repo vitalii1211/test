@@ -36,6 +36,11 @@ function Copyright(props) {
 const theme = createTheme();
 
 export default function Register () {
+
+    // РЕГИСТРАЦИЯ ИДЕТ НАПРЯМУЮ, НЕ ЧЕРЕЗ auth.service.js
+    // ПЕРЕДЕЛАТЬ, ЧТОБЫ БЫЛО КАК И login
+
+
     const [userFirstName, setUserFirstName] = useState("")
     const [userLastName, setUserLastName] = useState("")
     const [userEmail, setUserEmail] = useState("")

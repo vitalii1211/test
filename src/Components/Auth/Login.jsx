@@ -131,7 +131,6 @@ export default function Login(props) {
 }
 
 // const [loginStatus, setLoginStatus] = useState(false)
-// axios.defaults.withCredentials = true;
 // const handleSubmitLogin = async (event) => {
 //     event.preventDefault();
 //     const userLogin = {
