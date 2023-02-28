@@ -4,6 +4,7 @@ import axios from "axios";
 import TaskItemTitle from "./TaskItemTitle";
 import Typography from "@mui/material/Typography";
 import Checkbox from "@mui/material/Checkbox";
+import api from "../../Services/api";
 
 function TaskItem(props) {
     const [editState, setEditState] = useState(false)
@@ -25,7 +26,7 @@ function TaskItem(props) {
         }
         try {
             const updatedTaskItem = updatedTaskList.find(taskItem => taskItem.id === id)
-            await axios.put("http://localhost:8800/task/" + id, updatedTaskItem)
+            await api.put("http://localhost:8800/task/" + id, updatedTaskItem)
         } catch (err) {
             console.log(err)
         }
@@ -35,7 +36,7 @@ function TaskItem(props) {
         const updatedTaskList = props.taskList.filter((i) => i.id !== id)
         props.setTaskList(updatedTaskList)
         try {
-            await axios.delete("http://localhost:8800/task/" + id)
+            await api.delete("http://localhost:8800/task/" + id)
         } catch (err) {
             console.log(err)
         }
@@ -75,6 +76,7 @@ function TaskItem(props) {
                         inputValue={inputValue}
                         setInputValue={setInputValue}
                         taskItem={props.taskItem}
+                        OnClickCancelEdit={OnClickCancelEdit}
                     />
                         {/*</Typography>*/}
                     </td>

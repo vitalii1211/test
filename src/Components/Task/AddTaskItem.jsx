@@ -1,8 +1,7 @@
 import React, {useState} from 'react';
-import axios from "axios";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import AddIcon from '@mui/icons-material/Add';
+import api from "../../Services/api";
 
 function AddTaskItem(props) {
     const [newInputItem, setNewInputItem] = useState("")
@@ -17,7 +16,7 @@ function AddTaskItem(props) {
             isDeleted: false
         }
         try {
-            await axios.post("http://localhost:8800/task", newTaskItem)
+            await api.post("http://localhost:8800/task", newTaskItem)
                 .then(function (response) {
                     newTaskItem.id = response.data
                     props.setFilterState("All")

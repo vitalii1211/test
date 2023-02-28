@@ -1,30 +1,23 @@
-import axios from "axios";
-import authHeader from "./auth-header";
+import api from "./api";
 
 const API_URL = "http://localhost:8800/";
 
-const getPublicContent = () => {
-    return axios.get(API_URL + "all");
-};
-
 const getTodoList = () => {
-    return axios.get(API_URL + "todo", { headers: authHeader() });
+    return api.get(API_URL + "todo");
 };
 
-// в оригинале - доступ в зависимости от роли пользователя, буду делать попозже
-// const getModeratorBoard = () => {
-//     return axios.get(API_URL + "mod", { headers: authHeader() });
-// };
-//
-// const getAdminBoard = () => {
-//     return axios.get(API_URL + "admin", { headers: authHeader() });
-// };
+const getTaskList = () => {
+    return api.get(API_URL + "task");
+};
+
+const getUserList = () => {
+    return api.get(API_URL + "users");
+};
 
 const UserService = {
-    getPublicContent,
-    getTodoList: getTodoList,
-    // getModeratorBoard,
-    // getAdminBoard,
+    getTodoList,
+    getTaskList,
+    getUserList,
 };
 
 export default UserService;

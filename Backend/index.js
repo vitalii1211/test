@@ -36,14 +36,18 @@ const db = mysql.createConnection({
 const saltRounds = 10
 
 // middleware
+
 const verifyJWT = (req, res, next) => {
     const token = req.headers["x-access-token"]
     if (!token) {
-        res.send("We need a token, please give it to us next time")
+        return res.status(403).send({ message: "No token provided!" });
     } else {
         jwt.verify(token, "jwtSecret", (err, decoded) => {
             if (err) {
-                res.json({auth: false, message: "You failed to authenticate"})
+                if (err instanceof jwt.TokenExpiredError) {
+                    return res.status(401).send({ message: "Unauthorized! Access Token was expired!" });
+                }
+                return res.sendStatus(401).send({ message: "Unauthorized!" });
             } else {
                 req.userId = decoded.id;
                 next();
@@ -52,6 +56,66 @@ const verifyJWT = (req, res, next) => {
     }
 }
 
+app.post("/login", (req, res) => {
+    const email = req.body.userEmail
+    const password = req.body.userPassword
+    // отправиляет е-мейл и пароль, получает в ответ ПОЛЬЗОВАТЕЛЯ
+    const q = "SELECT * FROM users WHERE email = ?"
+    db.query(q, email, (err, result) => {
+        if (err) {
+            console.log(err)
+        } else {
+            if (result.length > 0) {
+                bcrypt.compare(password, result[0].password, (err, response) => {
+                    if (response) {
+                        const id = result[0].id
+                        // Генерируем новый refresh token
+                        const refreshToken = jwt.sign({id}, 'refreshTokenSecret', { expiresIn: '30d' });
+                        // Сохраняем refreshToken в базу данных
+                        db.query('UPDATE users SET refresh_token = ? WHERE id = ?', [refreshToken, id]);
+                        const token = jwt.sign({id}, "jwtSecret", {
+                            expiresIn: 60,
+                        })
+                        // зачем нужна строка ниже? Если удалить, все работает
+                        req.session.user = result;
+                        res.json({auth: true, accessToken: token, refreshToken: refreshToken, id: id, result: result})
+                    } else {
+                        res.json({auth: false, message: "Неверный е-мейл или пароль"})
+                    }
+                });
+            } else {
+                res.json({auth: false, message: "Пользователь не найден"})
+            }
+        }
+    })
+})
+app.post('/refresh_token', (req, res) => {
+
+    const refreshToken = req.body.refreshToken;
+    if (refreshToken == null) return res.sendStatus(401);
+    jwt.verify(refreshToken, 'refreshTokenSecret', async (err, user) => {
+        if (err) return res.sendStatus(403);
+        const q = 'SELECT * FROM users WHERE id = ?';
+        db.query(q, req.body.user.id, (err, result) => {
+            if (err) {
+                console.log(err);
+                return res.sendStatus(500);
+            } else {
+                if (result.length > 0) {
+                    const id = result[0].id;
+                    const token = jwt.sign({id}, "jwtSecret", {
+                        expiresIn: 60,
+                    })
+                    // зачем нужна строка ниже? Если удалить, все работает
+                    req.session.user = result;
+                    res.json({auth: true, accessToken: token, refreshToken: refreshToken, id: id, result: result})
+                } else {
+                    return res.sendStatus(404);
+                }
+            }
+        });
+    });
+});
 app.post("/register", (req, res) => {
     const id = req.body.id
     const userFirstName = req.body.userFirstName
@@ -78,34 +142,25 @@ app.post("/register", (req, res) => {
         }
     })
 })
-app.post("/login", (req, res) => {
-    const email = req.body.userEmail
-    const password = req.body.userPassword
-    // отправиляет е-мейл и пароль, получает в ответ ПОЛЬЗОВАТЕЛЯ
-    const q = "SELECT * FROM users WHERE email = ?"
-    db.query(q, email, (err, result) => {
-        if (err) {
-            console.log(err)
-        } else {
-            if (result.length > 0) {
-                bcrypt.compare(password, result[0].password, (err, response) => {
-                    if (response) {
-                        const id = result[0].id
-                        const token = jwt.sign({id}, "jwtSecret", {
-                            expiresIn: 300,
-                        })
-                        req.session.user = result;
-                        res.json({auth: true, token: token, result: result})
-                    } else {
-                        res.json({auth: false, message: "Неверный е-мейл или пароль"})
-                    }
-                });
-            } else {
-                res.json({auth: false, message: "Пользователь не найден"})
-            }
-        }
+
+app.get("/users", verifyJWT, (req, res) => {
+    const q = "SELECT * FROM users;"
+    db.query(q, (err, data) => {
+        if (err) return res.json(err)
+        return res.json(data)
     })
 })
+app.put("/users/:id", verifyJWT, (req, res) => {
+    const id = req.params.id;
+    const q = "UPDATE users SET selectedUsers = ? WHERE id = ?";
+    const selectedUsers = JSON.stringify(req.body.selectedUser); // преобразование массива в строку JSON
+
+    db.query(q, [selectedUsers, id], (err) => {
+        if (err) return res.json(err);
+        return res.json("Данные успешно записаны!");
+    });
+});
+
 
 app.get("/todo", verifyJWT, (req, res) => {
     const q = "SELECT * FROM todo_list;"
@@ -114,18 +169,19 @@ app.get("/todo", verifyJWT, (req, res) => {
         return res.json(data)
     })
 })
-app.post("/todo", (req, res) => {
+app.post("/todo", verifyJWT, (req, res) => {
     const values = [
-        req.body.name
+        req.body.name,
+        req.body.author
     ]
-    const q = "INSERT INTO todo_list (name) VALUES (?)"
+    const q = "INSERT INTO todo_list (name, author) VALUES (?)"
 
     db.query(q, [values], (err, results) => {
         if (err) return res.json(err)
         return res.json(results.insertId)
     })
 })
-app.put("/todo/:id", (req, res) => {
+app.put("/todo/:id", verifyJWT, (req, res) => {
     const id = req.params.id;
     const q = "UPDATE todo_list SET name = ? WHERE id = ?"
     const values = [
@@ -138,7 +194,7 @@ app.put("/todo/:id", (req, res) => {
 
     })
 })
-app.delete("/todo/:id", (req, res) => {
+app.delete("/todo/:id", verifyJWT, (req, res) => {
     const todo_id = req.params.id;
     const q = "DELETE FROM todo_list WHERE id = ?"
     db.query(q, [todo_id], (err) => {
@@ -147,14 +203,14 @@ app.delete("/todo/:id", (req, res) => {
     })
 });
 
-app.get("/task", (req, res) => {
+app.get("/task", verifyJWT, (req, res) => {
     const q = "SELECT * FROM task_list;"
     db.query(q, (err, data) => {
         if (err) return res.json(err)
         return res.json(data)
     })
 })
-app.post("/task", (req, res) => {
+app.post("/task", verifyJWT,  (req, res) => {
     const values = [
         req.body.todo_id,
         req.body.title,
@@ -169,7 +225,7 @@ app.post("/task", (req, res) => {
         return res.json(results.insertId)
     })
 })
-app.put("/task/:id", (req, res) => {
+app.put("/task/:id", verifyJWT, (req, res) => {
     const id = req.params.id;
     const q = "UPDATE task_list SET isDeleted = ?, isDone = ?, title = ? WHERE id = ?"
     const values = [
@@ -183,7 +239,7 @@ app.put("/task/:id", (req, res) => {
         return res.json(results.insertId)
     })
 })
-app.delete("/task/:id", (req, res) => {
+app.delete("/task/:id", verifyJWT, (req, res) => {
     const id = req.params.id;
     const q = "DELETE FROM task_list WHERE id = ?"
     db.query(q, [id], (err) => {

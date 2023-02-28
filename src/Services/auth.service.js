@@ -1,4 +1,7 @@
 import axios from "axios";
+import TokenService from "./token.service";
+import api from "./api";
+
 
 const API_URL = "http://localhost:8800/";
 axios.defaults.withCredentials = true;
@@ -14,15 +17,13 @@ const register = (username, email, password) => {
 
 const login = async (userEmail, userPassword) => {
     try {
-    await axios
-        .post(API_URL + "login", {
+    await api.post(API_URL + "login", {
             userEmail,
             userPassword,
         })
         .then((response) => {
-            console.log(response.data)
-            if (response.data.token) {
-                localStorage.setItem("user", JSON.stringify(response.data));
+            if (response.data.accessToken) {
+                TokenService.setUser(response.data)
             }
             return response.data;
         })}
@@ -32,7 +33,8 @@ const login = async (userEmail, userPassword) => {
 };
 
 const logout = () => {
-    localStorage.removeItem("user");
+    TokenService.removeUser()
+    // localStorage.removeItem("user");
     };
 
 const getCurrentUser = () => {

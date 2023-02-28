@@ -41,16 +41,11 @@ export default function Login(props) {
 
     const handleLogin = (e) => {
         e.preventDefault();
-
-        AuthService.login(userEmail, userPassword).then(
-            () => {
-                navigate("/");
-            },
-            (error) => {
-                console.log(error)
-            }
-        );
-    };
+        AuthService.login(userEmail, userPassword)
+            .then(() => {
+                navigate("/")
+            })
+        };
 
 
     return (

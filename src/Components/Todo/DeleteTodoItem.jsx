@@ -1,15 +1,20 @@
 import React from 'react';
 import axios from "axios";
-import ClearIcon from '@mui/icons-material/Clear';
+import api from "../../Services/api";
 
 function DeleteTodoItem(props) {
     const OnDeleteTodoItem = async (id) => {
+        const taskListOfTodo = props.taskList.filter(el => el.todo_id === props.todoItem.id)
+        if (taskListOfTodo.length > 0) {
+            console.log("Нельзя удалить, т.к. есть задачи")
+        } else {
         const updatedTodoList = props.todoList.filter((todoItem) => todoItem.id !== id)
         props.setTodoList(updatedTodoList)
         try {
-            await axios.delete("http://localhost:8800/todo/" + id)
+            await api.delete("http://localhost:8800/todo/" + id)
         } catch (err) {
             console.log(err)
+        }
         }
 
         // обновляем на фронте
