@@ -36,7 +36,6 @@ const db = mysql.createConnection({
 const saltRounds = 10
 
 // middleware
-
 const verifyJWT = (req, res, next) => {
     const token = req.headers["x-access-token"]
     if (!token) {
@@ -161,7 +160,6 @@ app.put("/users/:id", verifyJWT, (req, res) => {
     });
 });
 
-
 app.get("/todo", verifyJWT, (req, res) => {
     const q = "SELECT * FROM todo_list;"
     db.query(q, (err, data) => {
@@ -183,11 +181,11 @@ app.post("/todo", verifyJWT, (req, res) => {
 })
 app.put("/todo/:id", verifyJWT, (req, res) => {
     const id = req.params.id;
-    const q = "UPDATE todo_list SET name = ? WHERE id = ?"
+    const q = "UPDATE todo_list SET name = ?, filter = ? WHERE id = ?"
     const values = [
-        req.body.name
+        req.body.name,
+        req.body.filter
     ]
-
     db.query(q, [...values, id], (err) => {
         if (err) return res.json(err)
         return res.json("Данные успешно записаны!")

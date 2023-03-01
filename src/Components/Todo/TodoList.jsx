@@ -4,7 +4,7 @@ import {TodoItem} from "./TodoItem";
 function TodoList(props) {
     return (
         <div>
-            {props.filteredTodoList
+            {props.todoListAfterSearh
                 .filter(todo => todo.author === props.user.id)
                 .map((todoItem) => {
                         return (

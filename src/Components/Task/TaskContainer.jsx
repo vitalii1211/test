@@ -1,21 +1,16 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import AddTaskItem from "./AddTaskItem";
 import FilterButtons from "./FilterButtons";
 import TaskList from "./TaskList";
-import axios from "axios";
-import File from "./File";
 import AuthService from "../../Services/auth.service";
 
 function TaskContainer(props) {
-    const [filterState, setFilterState] = useState("All")
+    const [filterState, setFilterState] = useState(props.todoItem.filter)
     const taskList = props.taskList
     const setTaskList = props.setTaskList
 
     const currentUser = AuthService.getCurrentUser();
-
     const author_id = props.todoItem.author
-    const users = props.userList
-    const todoAuthor = users.find(user => user.id === author_id)
 
     return (
         <div>
@@ -45,9 +40,9 @@ function TaskContainer(props) {
                 taskList={taskList}
                 filterState={filterState}
                 setFilterState={setFilterState}
+                todoItem={props.todoItem}
 
             />
-            Автор: {todoAuthor?.first_name + " [" + todoAuthor?.role + "]"}
         </div>
     )
 }

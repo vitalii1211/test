@@ -18,7 +18,7 @@ function TaskList(props) {
     })
 
    const taskListOfTodo = [...filteredItems]
-        .search = filteredItems.filter(item => item.title.toLowerCase().includes(props.searchItem.toLowerCase()))
+        .filter(item => item.title.toLowerCase().includes(props.searchItem.toLowerCase()))
         .filter(el => el.todo_id === props.todoItem.id)
         .reverse()
 

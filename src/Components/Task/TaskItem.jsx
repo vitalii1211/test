@@ -1,9 +1,6 @@
 import React, {useState} from "react";
 import DeleteTaskItem from "./DeleteTaskItem";
-import axios from "axios";
 import TaskItemTitle from "./TaskItemTitle";
-import Typography from "@mui/material/Typography";
-import Checkbox from "@mui/material/Checkbox";
 import api from "../../Services/api";
 
 function TaskItem(props) {
