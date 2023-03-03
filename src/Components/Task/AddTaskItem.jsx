@@ -1,15 +1,18 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import api from "../../Services/api";
+import {AppDataContext} from "../Context/DataContext";
 
-function AddTaskItem(props) {
+function AddTaskItem({ setFilterState, todoItem }) {
+    const data = useContext(AppDataContext)
+
     const [newInputItem, setNewInputItem] = useState("")
 
     const HandleAddTaskItem = async () => {
         let newTaskItem = {
             id: null,
-            todo_id: props.todoItem.id,
+            todo_id: todoItem.id,
             title: newInputItem,
             isDone: false,
             dateTime: "2019-03-28 10:00:00",
@@ -19,8 +22,8 @@ function AddTaskItem(props) {
             await api.post("http://localhost:8800/task", newTaskItem)
                 .then(function (response) {
                     newTaskItem.id = response.data
-                    props.setFilterState("All")
-                    props.setTaskList([...props.taskList, newTaskItem])
+                    setFilterState("All")
+                    data.setTaskList([...data.taskList, newTaskItem])
                     setNewInputItem("")
                 })
         } catch (err) {

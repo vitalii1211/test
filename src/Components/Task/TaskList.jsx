@@ -1,27 +1,27 @@
-import React, {useEffect} from 'react';
+import React, {useContext} from 'react';
 import TaskItem from "./TaskItem";
-import todoList from "../Todo/TodoList";
+import {AppDataContext} from "../Context/DataContext";
 
 
-function TaskList(props) {
+function TaskList({ filterState, todoItem, editMode, searchItem }) {
+    const data = useContext(AppDataContext)
 
-     const filteredItems = props.taskList.filter((el) => {
-        if (props.filterState === "All") {
-            return props.taskList && !el.isDeleted
-        } else if (props.filterState === "Active") {
+     const filteredItems = data.taskList.filter((el) => {
+        if (filterState === "All") {
+            return data.taskList && !el.isDeleted
+        } else if (filterState === "Active") {
             return !el.isDone && !el.isDeleted
-        } else if (props.filterState === "Completed") {
+        } else if (filterState === "Completed") {
             return el.isDone && !el.isDeleted
-        } else if (props.filterState === "Deleted") {
+        } else if (filterState === "Deleted") {
             return el.isDeleted
-        }
+        } else return data.taskList && !el.isDeleted
     })
 
    const taskListOfTodo = [...filteredItems]
-        .filter(item => item.title.toLowerCase().includes(props.searchItem.toLowerCase()))
-        .filter(el => el.todo_id === props.todoItem.id)
+        .filter(item => item.title.toLowerCase().includes(searchItem.toLowerCase()))
+        .filter(el => el.todo_id === todoItem.id)
         .reverse()
-
 
     return (
         <div>
@@ -32,11 +32,7 @@ function TaskList(props) {
                         <TaskItem
                             key={taskItem.id}
                             taskItem={taskItem}
-                            taskList={props.taskList}
-                            setTaskList={props.setTaskList}
-                            todoItem={props.todoItem}
-                            editMode={props.editMode}
-                            filteredItems={filteredItems}
+                            editMode={editMode}
                         />
                     )
                 : "Здесь пусто"

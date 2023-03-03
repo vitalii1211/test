@@ -1,23 +1,35 @@
 import React from 'react';
 
-function TaskItemTitle(props) {
+function TaskItemTitle({ inputValue, setInputValue, taskItem, editState, setEditState, editMode, HandleUpdateItem }) {
+
+    const OnClickChangeEditState = () => {
+        if (editMode)
+            setEditState(true)
+    }
+
+    const OnClickCancelEdit = () => {
+        setEditState(!editState)
+        setInputValue(taskItem.title)
+    }
+
     return (
         <div
-            onDoubleClick={props.OnClickChangeEditState}
-            style={(props.taskItem.isDone) ? {textDecoration: 'line-through'} : null}
+            draggable
+            onDoubleClick={OnClickChangeEditState}
+            style={(taskItem.isDone) ? {textDecoration: 'line-through'} : null}
         >
-            {!props.editState
-                ? props.taskItem.title
+            {!editState
+                ? taskItem.title
                 : <input type="text"
                          autoFocus={true}
-                         value={props.inputValue}
-                         onChange={(e) => props.setInputValue(e.target.value)}
-                         onBlur={() => props.HandleUpdateItem(props.taskItem.id, "title")}
+                         value={inputValue}
+                         onChange={(e) => setInputValue(e.target.value)}
+                         onBlur={() => HandleUpdateItem(taskItem.id, "title")}
                          onKeyDown={(e) => {
                              if (e.keyCode === 13) {
-                                 props.HandleUpdateItem(props.taskItem.id, "title");
+                                 HandleUpdateItem(taskItem.id, "title");
                              } else if (e.keyCode === 27) {
-                                 props.OnClickCancelEdit()
+                                 OnClickCancelEdit()
                              }
                          }}
                 />

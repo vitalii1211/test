@@ -151,14 +151,33 @@ app.get("/users", verifyJWT, (req, res) => {
 })
 app.put("/users/:id", verifyJWT, (req, res) => {
     const id = req.params.id;
-    const q = "UPDATE users SET selectedUsers = ? WHERE id = ?";
     const selectedUsers = JSON.stringify(req.body.selectedUser); // преобразование массива в строку JSON
+    const q = "UPDATE users SET selectedUsers = ? WHERE id = ?";
 
     db.query(q, [selectedUsers, id], (err) => {
         if (err) return res.json(err);
         return res.json("Данные успешно записаны!");
     });
 });
+app.put("/updateUser/:id", verifyJWT, (req, res) => {
+    let q;
+    let values;
+    if (req.body.position) {
+        q = "UPDATE users SET position = ? WHERE id = ?";
+        values = [req.body.position, req.params.id];
+    } else if (req.body.sort_type) {
+        q = "UPDATE users SET sort_type = ? WHERE id = ?";
+        values = [req.body.sort_type, req.params.id];
+    } else {
+        return res.json("Не передано значение для обновления");
+    }
+    db.query(q, values, (err) => {
+        if (err) return res.json(err);
+        return res.json("Данные успешно записаны!");
+    });
+});
+
+
 
 app.get("/todo", verifyJWT, (req, res) => {
     const q = "SELECT * FROM todo_list;"
@@ -170,9 +189,10 @@ app.get("/todo", verifyJWT, (req, res) => {
 app.post("/todo", verifyJWT, (req, res) => {
     const values = [
         req.body.name,
-        req.body.author
+        req.body.author,
+        req.body.filter
     ]
-    const q = "INSERT INTO todo_list (name, author) VALUES (?)"
+    const q = "INSERT INTO todo_list (name, author, filter) VALUES (?)"
 
     db.query(q, [values], (err, results) => {
         if (err) return res.json(err)
@@ -180,12 +200,18 @@ app.post("/todo", verifyJWT, (req, res) => {
     })
 })
 app.put("/todo/:id", verifyJWT, (req, res) => {
+    let q, values;
     const id = req.params.id;
-    const q = "UPDATE todo_list SET name = ?, filter = ? WHERE id = ?"
-    const values = [
-        req.body.name,
-        req.body.filter
-    ]
+    if (req.body.name || req.body.filter) {
+        q = "UPDATE todo_list SET name = ?, filter = ? WHERE id = ?"
+        values = [req.body.name, req.body.filter]
+    } else if (req.body.position && !req.body.author) {
+        q = "UPDATE todo_list SET position = ? WHERE id = ?"
+        values = [req.body.position]
+    } else if (req.body.position && req.body.position) {
+        q = "UPDATE todo_list SET position = ?, author = ? WHERE id = ?"
+        values = [req.body.position, req.body.author]
+    }
     db.query(q, [...values, id], (err) => {
         if (err) return res.json(err)
         return res.json("Данные успешно записаны!")

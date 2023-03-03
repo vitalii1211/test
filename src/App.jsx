@@ -6,23 +6,25 @@ import Login from "./Components/Auth/Login";
 import {Routes, Route, BrowserRouter} from 'react-router-dom'
 import Test from "./Test";
 import PrivateRoute from "./Components/Auth/PrivateRoute";
+import DataContext from "./Components/Context/DataContext";
 
 function App() {
     return (
-        <BrowserRouter>
-            <Routes>
-                <Route path="/" element={
-                    <PrivateRoute>
-                        <TodoContainer/>
-                    </PrivateRoute>
-                }/>
+        <DataContext>
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/" element={
+                        <PrivateRoute>
+                            <TodoContainer/>
+                        </PrivateRoute>
+                    }/>
 
-                <Route path="/test" element={<Test/>}/>
-
-                <Route path="/login" element={<Login/>}/>
-                <Route path="/register" element={<Register/>}/>
-            </Routes>
-        </BrowserRouter>
+                    <Route path="/test" element={<Test/>}/>
+                    <Route path="/login" element={<Login/>}/>
+                    <Route path="/register" element={<Register/>}/>
+                </Routes>
+            </BrowserRouter>
+        </DataContext>
     )
 }
 

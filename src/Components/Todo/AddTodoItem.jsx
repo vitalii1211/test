@@ -1,31 +1,26 @@
-import React, { useState } from 'react';
+import React, {useContext, useState} from 'react';
 import TextField from "@mui/material/TextField";
-import axios from "axios";
 import Button from "@mui/material/Button";
 import api from "../../Services/api";
-import AuthService from "../../Services/auth.service";
+import {AppDataContext} from "../Context/DataContext";
 
-function AddTodoItem(props) {
-
-    // передачу строки из поля ввода реализовал по-разному здесь и в AddTaskItem.
-    // здесь - передача по нажатию кнопки, в AddTaskItem - по каждому символу.
-    // Здесь я не знаю как очистить поле, там - знаю
+function AddTodoItem() {
+    const data = useContext(AppDataContext)
 
     const [newInputItem, setNewInputItem] = useState("")
-    const currentUser = AuthService.getCurrentUser();
-
 
     const OnAddTodoItem = async () => {
         let newTodoItem = {
             id: null,
             name: newInputItem,
-            author: currentUser.result[0].id,
+            author: data.currentUser.id,
+            filter: "All"
         }
         try {
             await api.post("http://localhost:8800/todo", newTodoItem)
                 .then(function (response) {
                     newTodoItem.id = response.data
-                    props.setTodoList([...props.todoList, newTodoItem])
+                    data.setTodoList([...data.todoList, newTodoItem])
                 })
         } catch (err) {
             console.log(err)

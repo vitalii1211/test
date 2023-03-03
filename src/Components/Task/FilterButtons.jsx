@@ -3,36 +3,38 @@ import {ButtonGroup} from "@mui/material";
 import Button from "@mui/material/Button";
 import api from "../../Services/api";
 
-function FilterButtons(props) {
+
+function FilterButtons({ filterState, setFilterState, todoItem }) {
+
     async function onFilterValueChanged(event, id) {
         try {
-            await api.put("http://localhost:8800/todo/" + id, {name: props.todoItem.name, filter: event.target.value})
+            await api.put("http://localhost:8800/todo/" + id, {name: todoItem.name, filter: event.target.value})
         } catch (err) {
             console.log(err)
         }
-        props.setFilterState(event.target.value)
+        setFilterState(event.target.value)
     }
 
     const buttons = [
         <Button
-            variant={props.filterState === "All" ? "contained" : "outlined"}
-            key="All" value="All" onClick={(event) => onFilterValueChanged(event, props.todoItem.id)}>
+            variant={filterState === "All" ? "contained" : "outlined"}
+            key="All" value="All" onClick={(event) => onFilterValueChanged(event, todoItem.id)}>
             All
         </Button>,
         <Button
-            variant={props.filterState === "Active" ? "contained" : "outlined"}
-            key="Active" value="Active" onClick={(event) => onFilterValueChanged(event, props.todoItem.id)}>
+            variant={filterState === "Active" ? "contained" : "outlined"}
+            key="Active" value="Active" onClick={(event) => onFilterValueChanged(event, todoItem.id)}>
             Active
         </Button>,
         <Button
-            variant={props.filterState === "Completed" ? "contained" : "outlined"}
-            key="Completed" value="Completed" onClick={(event) => onFilterValueChanged(event, props.todoItem.id)}>
+            variant={filterState === "Completed" ? "contained" : "outlined"}
+            key="Completed" value="Completed" onClick={(event) => onFilterValueChanged(event, todoItem.id)}>
             Completed
         </Button>,
         <Button
-            variant={props.filterState === "Deleted" ? "contained" : "outlined"}
+            variant={filterState === "Deleted" ? "contained" : "outlined"}
             key="Deleted" value="Deleted"
-            onClick={(event) => onFilterValueChanged(event, props.todoItem.id)}>
+            onClick={(event) => onFilterValueChanged(event, todoItem.id)}>
             [Корзина]
         </Button>
     ]

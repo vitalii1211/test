@@ -1,14 +1,18 @@
-import React, {useState} from "react";
+import React, {useContext, useState} from "react";
 import DeleteTaskItem from "./DeleteTaskItem";
 import TaskItemTitle from "./TaskItemTitle";
 import api from "../../Services/api";
+import {AppDataContext} from "../Context/DataContext";
 
-function TaskItem(props) {
+
+function TaskItem({taskItem, editMode}) {
+    const data = useContext(AppDataContext)
+
     const [editState, setEditState] = useState(false)
-    const [inputValue, setInputValue] = useState(props.taskItem.title)
+    const [inputValue, setInputValue] = useState(taskItem.title)
 
     const HandleUpdateItem = async (id, value) => {
-        const updatedTaskList = props.taskList.map(taskItem =>
+        const updatedTaskList = data.taskList.map(taskItem =>
             taskItem.id === id
                 ? value === "isDone"
                     ? {...taskItem, isDone: !taskItem.isDone}
@@ -17,7 +21,7 @@ function TaskItem(props) {
                         : value === "isDeleted"
                             ? {...taskItem, isDeleted: !taskItem.isDeleted}
                             : taskItem : taskItem)
-        props.setTaskList(updatedTaskList);
+        data.setTaskList(updatedTaskList);
         if (value === "title") {
             setEditState(!editState)
         }
@@ -30,8 +34,8 @@ function TaskItem(props) {
     }
 
     const HandleDeleteForever = async (id) => {
-        const updatedTaskList = props.taskList.filter((i) => i.id !== id)
-        props.setTaskList(updatedTaskList)
+        const updatedTaskList = data.taskList.filter((i) => i.id !== id)
+        data.setTaskList(updatedTaskList)
         try {
             await api.delete("http://localhost:8800/task/" + id)
         } catch (err) {
@@ -39,55 +43,42 @@ function TaskItem(props) {
         }
     }
 
-    const OnClickChangeEditState = () => {
-        if (props.editMode)
-            setEditState(true)
-    }
 
-    const OnClickCancelEdit = () => {
-        setEditState(!editState)
-        setInputValue(props.taskItem.title)
-    }
 
 
     return (
         <div>
-
             <table>
                 <tbody>
                 <tr>
                     <td>
                         <input type="checkbox"
-                            width="fullWidth"
-                            disabled={props.taskItem.isDeleted && true}
-                            onChange={() => HandleUpdateItem(props.taskItem.id, "isDone")}
-                            checked={props.taskItem.isDone}
+                               width="fullWidth"
+                               disabled={taskItem.isDeleted}
+                               onChange={() => HandleUpdateItem(taskItem.id, "isDone")}
+                               checked={taskItem.isDone}
                         />
                     </td>
                     <td>
-                        {/*<Typography variant="body1">*/}
                         <TaskItemTitle
-                        OnClickChangeEditState={OnClickChangeEditState}
-                        editState={editState}
-                        HandleUpdateItem={HandleUpdateItem}
-                        inputValue={inputValue}
-                        setInputValue={setInputValue}
-                        taskItem={props.taskItem}
-                        OnClickCancelEdit={OnClickCancelEdit}
-                    />
-                        {/*</Typography>*/}
+                            inputValue={inputValue}
+                            setInputValue={setInputValue}
+                            taskItem={taskItem}
+                            editState={editState}
+                            setEditState={setEditState}
+                            editMode={editMode}
+                            HandleUpdateItem={HandleUpdateItem}
+                        />
                     </td>
                     <td><>
-                        {!props.taskItem.isDeleted
-                            ? !props.editState && props.editMode &&
-                            <button onClick={() => HandleUpdateItem(props.taskItem.id, "isDeleted")}>X</button>
-                            : <button onClick={() => HandleUpdateItem(props.taskItem.id, "isDeleted")}>---</button>
+                        {!taskItem.isDeleted
+                            ? !editState && editMode &&
+                            <button onClick={() => HandleUpdateItem(taskItem.id, "isDeleted")}>X</button>
+                            : <button onClick={() => HandleUpdateItem(taskItem.id, "isDeleted")}>---</button>
                         }
 
                         <DeleteTaskItem
-                            taskItem={props.taskItem}
-                            taskList={props.taskList}
-                            setTaskList={props.setTaskList}
+                            taskItem={taskItem}
                             HandleDeleteForever={HandleDeleteForever}
                         />
                     </>
@@ -95,7 +86,6 @@ function TaskItem(props) {
                 </tr>
                 </tbody>
             </table>
-
         </div>
     )
 }

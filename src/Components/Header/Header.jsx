@@ -1,15 +1,19 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import FormControlLabel from "@mui/material/FormControlLabel";
 import {Switch} from "@mui/material";
 import Search from "../Search";
-import AddTodoItem from "./AddTodoItem";
+import AddTodoItem from "../Todo/AddTodoItem";
 import UserSelector from "./UserSelector";
 import AuthService from "../../Services/auth.service";
 import {useNavigate} from "react-router-dom";
+import {AppDataContext} from "../Context/DataContext";
+import UserListSortSelector from "./UserListSortSelector";
+
 
 function Header(props) {
+    const data = useContext(AppDataContext)
     const navigate = useNavigate()
-    const currentUser = AuthService.getCurrentUser();
+    const fullName = data.currentUser.first_name + " " + data.currentUser.last_name
 
     const logout = () => {
         AuthService.logout()
@@ -28,23 +32,22 @@ function Header(props) {
             />
 
             {props.editMode &&
-                <AddTodoItem
-                    todoList={props.todoList}
-                    setTodoList={props.setTodoList}
-                    editMode={props.editMode}
-                />
+                <AddTodoItem/>
             }
 
             <UserSelector
-                userList={props.userList}
+                userList={data.userList}
                 selectedUsers={props.selectedUsers}
                 setSelectedUsers={props.setSelectedUsers}
-                currentUser={props.currentUser}
             />
 
-            <strong style={{ paddingRight: "10px" }}>Привет, {currentUser.result[0].first_name + " " + currentUser.result[0].last_name}!</strong>
-            <button onClick={logout}>Logout</button>
+            <UserListSortSelector
+                sortType={props.sortType}
+                setSortType={props.setSortType}
+            />
 
+            <strong style={{ paddingRight: "10px" }}> Привет, {fullName}! </strong>
+            <button onClick={logout}>Logout</button>
         </div>
     );
 }

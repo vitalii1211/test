@@ -1,10 +1,10 @@
 import React from "react";
 
-function DeleteTaskItem(props) {
+function DeleteTaskItem({ taskItem, HandleDeleteForever }) {
     return (
         <>
-            {Boolean(props.taskItem.isDeleted) &&
-                <button onClick={() => props.HandleDeleteForever(props.taskItem.id)}>XXX</button>}
+            {Boolean(taskItem.isDeleted) &&
+                <button onClick={() => HandleDeleteForever(taskItem.id)}>XXX</button>}
         </>)
 }
 

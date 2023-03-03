@@ -1,14 +1,18 @@
-import React from "react";
+import React, {useContext} from "react";
 import OutlinedInput from "@mui/material/OutlinedInput";
-import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
-import ListItemText from "@mui/material/ListItemText";
 import Select from "@mui/material/Select";
+import ListItemText from "@mui/material/ListItemText";
+import InputLabel from "@mui/material/InputLabel";
 import Checkbox from "@mui/material/Checkbox";
 import api from "../../Services/api";
+import {AppDataContext} from "../Context/DataContext";
 
-const UserSelector = ({userList, selectedUsers, setSelectedUsers, currentUser}) => {
+
+const UserSelector = ({selectedUsers, setSelectedUsers}) => {
+    const data = useContext(AppDataContext)
+
     const ITEM_HEIGHT = 48;
     const ITEM_PADDING_TOP = 8;
     const MenuProps = {
@@ -20,14 +24,17 @@ const UserSelector = ({userList, selectedUsers, setSelectedUsers, currentUser}) 
         },
     };
     const handleChange = async (event) => {
-        const currentUserId = currentUser.result[0].id
         try {
-            await api.put("http://localhost:8800/users/" + currentUserId, {selectedUser: event.target.value})
+            await api.put("http://localhost:8800/users/" + data.currentUser.id, {selectedUser: event.target.value})
         } catch (err) {
             console.log(err)
         }
         setSelectedUsers(event.target.value)
     };
+
+    const myUserList = data.userList.map(user => user.id === data.currentUser.id
+        ? {...user, first_name: "Мои", last_name: ""}
+        : user)
 
     return (
         <FormControl sx={{m: 3, width: 400}} size="small">
@@ -42,15 +49,19 @@ const UserSelector = ({userList, selectedUsers, setSelectedUsers, currentUser}) 
                 onChange={handleChange}
                 input={<OutlinedInput label="Показать карточки пользователей"/>}
                 renderValue={() => selectedUsers.map((selectedUser) => {
-                    const user = userList.find((userInList) => userInList.id === selectedUser);
-                    return user ? user.first_name + " " + user.last_name : "";
+                    const user = myUserList.find((userInList) => userInList.id === selectedUser);
+                    return user
+                        ? user.id !== data.currentUser.id
+                        ? user.first_name + " " + user.last_name.split("", 1) + "."
+                            : user.first_name
+                        : "";
                 })
                     .join(", ")
                 }
 
                 MenuProps={MenuProps}
             >
-                {userList
+                {myUserList
                     .sort((a, b) => {
                         const nameA = a.last_name.toLowerCase(), nameB = b.last_name.toLowerCase();
                         if (nameA < nameB) //сортируем строки по возрастанию
