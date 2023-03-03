@@ -10,6 +10,7 @@ function TaskContainer({ todoItem, editMode, searchItem }) {
     const currentUser = AuthService.getCurrentUser();
     const author_id = todoItem.author
 
+
     return (
         <div>
             {((currentUser.result[0].role === "admin" && editMode) || author_id === currentUser.result[0].id) &&
@@ -24,6 +25,7 @@ function TaskContainer({ todoItem, editMode, searchItem }) {
                 todoItem={todoItem}
                 editMode={editMode}
                 searchItem={searchItem}
+
             />
 
             <FilterButtons

@@ -6,7 +6,8 @@ import {AppDataContext} from "../Context/DataContext";
 function TaskList({ filterState, todoItem, editMode, searchItem }) {
     const data = useContext(AppDataContext)
 
-     const filteredItems = data.taskList.filter((el) => {
+     const filteredItems = data.taskList
+         .filter((el) => {
         if (filterState === "All") {
             return data.taskList && !el.isDeleted
         } else if (filterState === "Active") {
