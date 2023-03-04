@@ -43,25 +43,6 @@ function TodoList({todoListAfterSearch, user, editMode, searchItem, setSearchIte
         }
     })
 
-    //     const updatedTodo = data.todoList.map((todo) => {
-    //         if (todo.id === todo1.id) {
-    //                 // updateTodo(todo.id, todo2.position, todo2.author)
-    //                 console.log("не было списка")
-    //                 return {...todo, author: user.id, position: 1};
-    //
-    //             if (todolistFinal.length) {
-    //                 console.log("был список")
-    //                 // updateTodo(todo.id, todo2.position, todo2.author)
-    //                 return {...todo, author: user.id, position: todolistFinal.length + 1};
-    //             }
-    //         }
-    //
-    //         return todo;
-    //     })
-    //     data.setTodoList(updatedTodo)
-    //     console.log("updatedTodo", updatedTodo)
-    // }
-
     function handleDragStart(event) {
         const {active} = event;
         setActiveId(active.id);
@@ -69,29 +50,26 @@ function TodoList({todoListAfterSearch, user, editMode, searchItem, setSearchIte
 
     function handleDragEnd(event) {
         const {active, over} = event;
-        // console.log("active", active.id)
-        // console.log("over", over.id)
-
         if (active.id !== over.id) {
-            data.setTodoList((items) => {
-                const oldIndex = items.indexOf(active.id);
-                console.log(oldIndex)
-                const newIndex = items.indexOf(over.id);
-                console.log(newIndex)
-                return arrayMove(items, oldIndex, newIndex);
-            });
+            if (active.id.author === over.id.author) {
+                const updatedTodo = data.todoList.map((todo) => {
+                    if (todo.id === active.id.id) {
+                        // updateTodo(todo.id, todo2.position, todo2.author)
+                        return {...todo, position: over.id.position};
+                    }
+                    if (todo.id === over.id.id) {
+                        // updateTodo(todo.id, todo2.position, todo2.author)
+                        return {...todo, position: active.id.position};
+                    }
+                    return todo;
+                })
+                data.setTodoList(updatedTodo)
+            }
         }
-
         setActiveId(null);
     }
 
     return (
-        // <div
-        //     // style={{height: '100%'}}
-        //     // draggable
-        //     // onDragOver={(e) => dragOverHandler(e)}
-        //     // onDrop={e => dropCardHandler(e, user)}
-        // >
         <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -102,7 +80,7 @@ function TodoList({todoListAfterSearch, user, editMode, searchItem, setSearchIte
                 items={data.todoList}
                 strategy={verticalListSortingStrategy}
             >
-                {todoListOfUser
+                {todolistFinal
                     .map((todoItem) => <TodoItem
                             key={todoItem.id}
                             todoItem={todoItem}
@@ -118,7 +96,6 @@ function TodoList({todoListAfterSearch, user, editMode, searchItem, setSearchIte
                         />
                     )
                 }
-                {/*</div>*/}
             </SortableContext>
             <DragOverlay>
                 {activeId ? <TodoItem
@@ -131,8 +108,6 @@ function TodoList({todoListAfterSearch, user, editMode, searchItem, setSearchIte
         </DndContext>
     );
 }
-
-
 
 
 export default TodoList;
