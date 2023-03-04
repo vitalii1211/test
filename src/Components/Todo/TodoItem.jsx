@@ -8,6 +8,7 @@ import {useSortable} from '@dnd-kit/sortable';
 // import {Item} from './Item';
 import {CSS} from '@dnd-kit/utilities';
 
+
 export function TodoItem({ title, todoItem, editMode, searchItem }) {
     const data = useContext(AppDataContext)
     const [editState, setEditState] = useState(false)
@@ -20,7 +21,9 @@ export function TodoItem({ title, todoItem, editMode, searchItem }) {
         transform,
         transition,
     } = useSortable(
-        {id: todoItem});
+        {
+            id: todoItem,
+        });
 
     const style = {
         transform: CSS.Transform.toString(transform),

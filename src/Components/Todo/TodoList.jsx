@@ -6,7 +6,7 @@ import {
     closestCenter,
     DndContext,
     DragOverlay,
-    KeyboardSensor,
+    KeyboardSensor, MouseSensor,
     PointerSensor,
     useSensor,
     useSensors,
@@ -18,14 +18,17 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 
-import {Item} from './Item';
-
 function TodoList({todoListAfterSearch, user, editMode, searchItem, setSearchItem, todo1, setTodo1}) {
     const data = useContext(AppDataContext)
     const [activeId, setActiveId] = useState(null);
 
     const sensors = useSensors(
-        useSensor(PointerSensor),
+        useSensor(MouseSensor, {
+            // Require the mouse to move by 10 pixels before activating
+            activationConstraint: {
+                distance: 10,
+            },
+        }),
         useSensor(KeyboardSensor, {
             coordinateGetter: sortableKeyboardCoordinates,
         })
