@@ -6,15 +6,14 @@ import {
     closestCenter,
     DndContext,
     DragOverlay,
-    KeyboardSensor, MouseSensor,
-    PointerSensor,
+    KeyboardSensor,
+    MouseSensor,
     useSensor,
     useSensors,
 } from '@dnd-kit/core';
 import {
-    arrayMove,
+    rectSortingStrategy,
     SortableContext,
-    sortableKeyboardCoordinates,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 
@@ -29,9 +28,6 @@ function TodoList({todoListAfterSearch, user, editMode, searchItem, setSearchIte
                 distance: 10,
             },
         }),
-        useSensor(KeyboardSensor, {
-            coordinateGetter: sortableKeyboardCoordinates,
-        })
     );
 
     const todoListOfUser = todoListAfterSearch
@@ -49,12 +45,16 @@ function TodoList({todoListAfterSearch, user, editMode, searchItem, setSearchIte
     function handleDragStart(event) {
         const {active} = event;
         setActiveId(active.id);
+        console.log("Взял, автор:", active.id)
     }
 
     function handleDragEnd(event) {
         const {active, over} = event;
+        console.log("active.id.author", active.id.author)
+
         if (active.id !== over.id) {
             if (active.id.author === over.id.author) {
+                console.log("ДА")
                 const updatedTodo = data.todoList.map((todo) => {
                     if (todo.id === active.id.id) {
                         // updateTodo(todo.id, todo2.position, todo2.author)
@@ -68,7 +68,11 @@ function TodoList({todoListAfterSearch, user, editMode, searchItem, setSearchIte
                 })
                 data.setTodoList(updatedTodo)
             }
-        }
+            if (active.id.author !== over.id.author) {
+                console.log("НЕТ!!!");
+            }
+
+            }
         setActiveId(null);
     }
 
@@ -81,7 +85,7 @@ function TodoList({todoListAfterSearch, user, editMode, searchItem, setSearchIte
         >
             <SortableContext
                 items={data.todoList}
-                strategy={verticalListSortingStrategy}
+                strategy={verticalListSortingStrategy }
             >
                 {todolistFinal
                     .map((todoItem) => <TodoItem

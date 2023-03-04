@@ -5,14 +5,34 @@ import Grid from "@mui/material/Grid";
 import UserService from "../../Services/user.service";
 import {AppDataContext} from "../Context/DataContext";
 import api from "../../Services/api";
-import TodoList from "./TodoList";
+import BoardItem from "./BoardItem";
+import {
+    closestCenter,
+    DndContext,
+    DragOverlay,
+    MouseSensor,
+    useSensor,
+    useSensors
+} from "@dnd-kit/core";
+import {horizontalListSortingStrategy, SortableContext, verticalListSortingStrategy} from "@dnd-kit/sortable";
 
-function TodoContainer({API_URL}) {
+function BoardList({API_URL}) {
     const data = useContext(AppDataContext)
     const [editMode, setEditMode] = useState(false)
     const [searchItem, setSearchItem] = useState("")
     const [selectedUsers, setSelectedUsers] = useState([]);
     const [sortType, setSortType] = useState("")
+
+    const [activeId, setActiveId] = useState(null);
+
+    const sensors = useSensors(
+        useSensor(MouseSensor, {
+            // Require the mouse to move by 10 pixels before activating
+            activationConstraint: {
+                distance: 10,
+            },
+        }),
+    );
 
     useEffect(() => {
         UserService.getUserList()
@@ -69,14 +89,7 @@ function TodoContainer({API_URL}) {
     const withoutCurrentUser = [...sorted10].filter(item => item.id !== data.currentUser.id)
     const sorted20 = [data.currentUser].concat(withoutCurrentUser)
     const sorted30 = orderedUserList
-    const sorted40 = data.userList.sort((a, b) => {
-        const todoA = a.position, todoB = b.position
-        if (todoA < todoB) //сортируем строки по возрастанию
-            return -1
-        if (todoA > todoB)
-            return 1
-        return 0 // Никакой сортировки
-    })
+
 
     // const updateUser = (id, customOrder) => {
     //     api.put('/updateUser/' + id, {position: customOrder})
@@ -104,8 +117,6 @@ function TodoContainer({API_URL}) {
     //     }))
     // }
 
-
-
     let finalList;
     if (sortType === "10") {
         finalList = sorted10;
@@ -113,11 +124,29 @@ function TodoContainer({API_URL}) {
         finalList = sorted20;
     } else if (sortType === "30") {
         finalList = sorted30;
-    } else if (sortType === "40") {
-        finalList = sorted40;
     }
 
+    function handleDragStart(event) {
+        const {active} = event;
+        setActiveId(active.id);
+    }
 
+    function handleDragEnd(event) {
+        const {active, over} = event;
+        if (active.id !== over.id) {
+            const currentUser = data.userList.find(user => user.id === data.currentUser.id)
+            const isArray = Array.isArray(currentUser.selectedUsers)
+            if (!isArray) {
+                currentUser.selectedUsers = JSON.parse(currentUser.selectedUsers)
+            }
+            const index1 = currentUser.selectedUsers.indexOf(active.id.id)
+            const index2 = currentUser.selectedUsers.indexOf(over.id.id)
+            currentUser.selectedUsers[index2] = active.id.id
+            currentUser.selectedUsers[index1] = over.id.id
+            setSelectedUsers(currentUser.selectedUsers)
+        }
+        setActiveId(null);
+    }
 
     return (
         <div>
@@ -131,29 +160,47 @@ function TodoContainer({API_URL}) {
                 sortType={sortType}
                 setSortType={setSortType}
             />
-
-            <Grid container spacing={2} columns={16} style={{paddingInline: '30px'}}>
-                {finalList &&
-                    finalList
-                    .filter(user => selectedUsers.includes(user.id))
-                    .map(user =>
-                        <Grid item xs={4} key={user.id}>
-                            <h1 align="center">
-                                {user.first_name + " " + user.last_name}
-                            </h1>
-                            {
-                                <TodoList
-                                    todoListAfterSearch={todoListAfterSearch}
-                                    user={user}
-                                    editMode={editMode}
-                                    searchItem={searchItem}
-                                    sortType={sortType}
-                                />}
-                        </Grid>)
-                }
-            </Grid>
+            <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+            >
+                <SortableContext
+                    items={data.todoList}
+                    strategy={horizontalListSortingStrategy}
+                >
+                    <Grid container spacing={2} columns={16} style={{paddingInline: '30px'}}>
+                        {finalList &&
+                            finalList
+                                .filter(user => selectedUsers.includes(user.id))
+                                .map(user =>
+                                    <BoardItem
+                                        key={user.id}
+                                        user={user}
+                                        todoListAfterSearch={todoListAfterSearch}
+                                        editMode={editMode}
+                                        searchItem={searchItem}
+                                        sortType={sortType}
+                                        activeId={activeId}
+                                    />
+                                )
+                        }
+                    </Grid>
+                </SortableContext>
+                <DragOverlay>
+                    {activeId ? <BoardItem
+                        user={activeId}
+                        todoListAfterSearch={todoListAfterSearch}
+                        editMode={editMode}
+                        searchItem={searchItem}
+                        sortType={sortType}
+                        isDragging={true}
+                    /> : null}
+                </DragOverlay>
+            </DndContext>
         </div>
     )
 }
 
-export default TodoContainer;
+export default BoardList;

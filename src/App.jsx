@@ -1,10 +1,9 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import './App.css';
-import TodoContainer from "./Components/Todo/TodoContainer";
+import BoardList from "./Components/BoardList/BoardList";
 import Register from "./Components/Auth/Register";
 import Login from "./Components/Auth/Login";
 import {Routes, Route, BrowserRouter} from 'react-router-dom'
-import Test from "./Test";
 import PrivateRoute from "./Components/Auth/PrivateRoute";
 import DataContext from "./Components/Context/DataContext";
 
@@ -15,11 +14,9 @@ function App() {
                 <Routes>
                     <Route path="/" element={
                         <PrivateRoute>
-                            <TodoContainer/>
+                            <BoardList/>
                         </PrivateRoute>
                     }/>
-
-                    <Route path="/test" element={<Test/>}/>
                     <Route path="/login" element={<Login/>}/>
                     <Route path="/register" element={<Register/>}/>
                 </Routes>

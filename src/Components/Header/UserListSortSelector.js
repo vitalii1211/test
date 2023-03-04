@@ -34,7 +34,6 @@ export default function UserListSortSelector(props) {
                     <option value={10}>Фамилии</option>
                     <option value={20}>Фамилии, мои первыми</option>
                     <option value={30}>Порядку выбора</option>
-                    <option value={40}>Произвольный</option>
                 </NativeSelect>
             </FormControl>
     );
